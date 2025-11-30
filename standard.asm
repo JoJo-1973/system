@@ -39,6 +39,19 @@ REG_YXA           = $FFFF7      ; Indirizzamento implicito a 24 bit con i regist
   }
 }
 
+; Titolo:                 MACRO: Uscita al BASIC
+; Nome:                   Exit_to_BASIC
+; Descrizione:            Termina un programma in linguaggio machina uscendo al prompt del BASIC.
+; Parametri di ingresso:  ---
+; Parametri di uscita:    ---
+; Alterazioni registri:   ---
+; Alterazioni pag. zero:  ---
+; Dipendenze esterne:     c64_symbols.asm
+!macro Exit_to_BASIC {
+  ldx #$80
+  jmp (IERROR)
+}
+
 ; Titolo:                 MACRO: Scambia di valore due puntatori a 8 bit
 ; Nome:                   Swap8
 ; Descrizione:            Scambia di valore due puntatori a 8 bit usando i registri.
