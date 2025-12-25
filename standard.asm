@@ -17,7 +17,7 @@ REG_YXA           = $FFFF7      ; Indirizzamento implicito a 24 bit con i regist
 !source <branch.asm>
 !source <mem.asm>
 !source <math.asm>
-
+!source <c64/errors.asm>
 
 ; Titolo:                 MACRO: Preambolo BASIC
 ; Nome:                   BASIC_Preamble
@@ -48,7 +48,7 @@ REG_YXA           = $FFFF7      ; Indirizzamento implicito a 24 bit con i regist
 ; Alterazioni pag. zero:  ---
 ; Dipendenze esterne:     c64_symbols.asm
 !macro Exit_to_BASIC {
-  ldx #$80
+  ldx #ERR_READY
   jmp (IERROR)
 }
 
