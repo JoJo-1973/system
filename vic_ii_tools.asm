@@ -1,0 +1,390 @@
+; Utility per la configurazione del chip VIC-II
+
+; Titolo:                 MACRO: Imposta i registri colore del chip VIC-II
+; Nome:                   VIC_COLORS
+; Scopo:                  Imposta i colori di bordo, sfondo, carattere e multicolore/colore esteso in un'unica operazione.
+;                         L'indirizzo in .A/.X punta ad un blocco di memoria che contiene in successione i valori
+;                         da assegnare ai seguenti registri:
+;
+;                         EXTCOL, BGCOL0, BGCOL1, BGCOL2, BGCOL3, COLOR
+;
+;                         Se il valore è VIC_TRANSPARENT il registro resta immutato.
+; Parametri di ingresso:  .A: Indirizzo del blocco di memoria (byte alto)
+;                         .X: Indirizzo del blocco di memoria (byte basso)
+; Parametri di uscita:    Nessuno
+; Registri alterati:      .A, .Y
+; Puntatori zp alterati:  ZP_5
+; Temporanei alterati:    Nessuno
+; Dipendenze esterne:     symbols.asm, standard.asm, kernal.asm, vic_ii.asm
+!macro Vic_Colors {
+  !zone Vic_Colors
+  VIC_COLORS:
+    ldy #0                      ; Prepara i registri
+    stx ZP_5
+    sta ZP_5+1
+
+  .Loop_Color:
+    lda (ZP_5),y                ; I primi 5 registri sono mappati in indirizzi consecutivi
+    bmi .Skip_Reg
+    sta EXTCOL,y
+
+  .Skip_Reg:
+    iny
+    cpy #5
+    bcc .Loop_Color
+
+    lda (ZP_5),y                ; L'ultimo no
+    bmi .Exit_VIC_COLORS
+    sta COLOR
+
+  .Exit_VIC_COLORS:
+    rts
+  !zone
+}
+
+; Titolo:                 Seleziona il banco di memoria visibile dal VIC-II
+; Nome:                   VIC_BANK
+; Scopo:                  Imposta o recupera l'indirizzo iniziale del banco di memoria da 16KB visibile dal chip VIC-II.
+;
+;                          C = 0: .A contiene la pagina iniziale del banco da selezionare, che può essere $00, $40, $80 oppure $C0.
+;                                 Valori differenti vengono allineati al limite più prossimo.
+;
+;                          C = 1: Il valore della pagina iniziale del banco di memoria viene restituito in .A
+;
+; Parametri di ingresso:  .A:   Indirizzo della pagina iniziale del blocco di memoria
+;                          C:   Selettore di lettura/scrittura
+; Parametri di uscita:    .A:   Indirizzo della pagina iniziale del blocco di memoria
+; Registri alterati:      .A
+; Puntatori zp alterati:  Nessuno
+; Temporanei alterati:    Nessuno
+; Dipendenze esterne:     symbols.asm, standard.asm, kernal.asm, vic_ii.asm, cia.asm
+!macro Vic_Bank {
+  !zone Vic_Bank
+  VIC_BANK:
+    bcs .RdBnk                  ; Se C=1 vai alla routine di recupero indirizzo
+
+    rol a                       ; L'accumulatore deve contenere un valore tra 0 e 3
+    rol a
+    rol a
+    and #%00000011
+    eor #%00000011              ; I bit di selezione del banco hanno un valore
+                                ; inverso a quello del numero del banco
+    sta ._MASK                  ; Conserva temporaneamente la maschera di selezione
+
+    lda C2DDRA                  ; Setta le porte di controllo del cambio
+    ora #%00000011              ; di banco in direzione di uscita
+    sta C2DDRA
+
+    lda CI2PRA                  ; Maschera i bit da lasciare immutati
+    and #%11111100
+    ora ._MASK                  ; ed applica la maschera di selezione
+    sta CI2PRA
+    +Bra .Exit_VIC_BANK
+
+  .RdBnk:
+    lda CI2PRA                  ; Inverti il valore dei bit di selezione del banco
+    eor #%00000011
+
+    ror a                       ; poi spostali nei bit 7 e 6 e pulisci i bit non necessari
+    ror a
+    ror a
+    and #%11000000
+
+  .Exit_VIC_BANK:
+    rts
+
+  ._MASK            !byte 0
+  !zone
+}
+
+; Titolo:                 Seleziona la posizione iniziale della memoria schermo
+; Nome:                   VIC_SCREEN
+; Scopo:                  Imposta o recupera l'indirizzo iniziale della memoria schermo.
+;
+;                          C = 0: .A contiene la pagina iniziale della memoria schermo, che può variare da $00 a $FC ad intervalli di $04.
+;                                 Valori differenti vengono allineati al limite più prossimo.
+;
+;                          C = 1: Il valore della pagina iniziale della memoria schermo viene restituito in .A
+;
+; Parametri di ingresso:  .A:   Indirizzo della pagina iniziale del blocco di memoria
+;                          C:   Selettore di lettura/scrittura
+; Parametri di uscita:    .A:   Indirizzo della pagina iniziale del blocco di memoria
+; Registri alterati:      .A
+; Puntatori zp alterati:  Nessuno
+; Temporanei alterati:    Nessuno
+; Dipendenze esterne:     symbols.asm, standard.asm, kernal.asm, vic_ii.asm, cia.asm
+!macro Vic_Screen {
+  !zone Vic_Screen
+  VIC_SCREEN:
+    bcs .RdScr                  ; Se C=1 vai alla routine di recupero indirizzo
+
+    and #%11111100              ; Allinea il valore fornito al KB
+    sta HIBASE                  ; Aggiusta HIBASE in modo che l'editor del BASIC conosca la nuova posizione della memoria schermo
+
+    asl a                       ; La posizione della pagina all'interno del banco (bit 2-5)
+    asl a                       ; va spostata nei bit più significativi
+    sta ._MASK                  ; Conserva temporaneamente la maschera di selezione
+
+    lda VMCSB                   ; Indica al VIC-II la posizione della memoria schermo
+    and #%00001111
+    ora ._MASK
+    sta VMCSB
+    +Bra .Exit_VIC_SCREEN
+
+  .RdScr:
+    jsr VIC_BANK                ; C è già 1, quindi leggi la posizione iniziale del banco video
+    sta ._MASK                  ; e conservalo temporaneamente
+
+    lda VMCSB                   ; Estrai dal registro di controllo la posizione
+    and #%11110000              ; della pagina iniziale di memoria schermo
+    lsr a                       ; e dividila per 4
+    lsr a
+    ora ._MASK                  ; Aggiungi la pagina iniziale del banco video
+
+  .Exit_VIC_SCREEN:
+    rts
+
+  ._MASK !byte 0
+  !zone
+}
+
+; Titolo:                 Seleziona la posizione iniziale del generatore di caratteri
+; Nome:                   VIC_CHRGEN
+; Scopo:                  Imposta o recupera l'indirizzo iniziale del generatore di caratteri
+;
+;                          C = 0: .A contiene la pagina iniziale del generatore di caratteri, che può variare da $00 a $F8 ad intervalli di $08.
+;                                 Valori differenti vengono allineati al limite più prossimo.
+;
+;                          C = 1: Il valore della pagina iniziale del generatore di caratteri viene restituito in .A
+;
+; Parametri di ingresso:  .A:   Indirizzo della pagina iniziale del blocco di memoria
+;                          C:   Selettore di lettura/scrittura
+; Parametri di uscita:    .A:   Indirizzo della pagina iniziale del blocco di memoria
+; Registri alterati:      .A
+; Puntatori zp alterati:  Nessuno
+; Temporanei alterati:    Nessuno
+; Dipendenze esterne:     vic.asm, cia.asm
+!macro Vic_CharGen {
+  !zone Vic_CharGen
+  VIC_CHRGEN:
+    bcs .RdChr                  ; Se C=1 vai alla routine di recupero indirizzo
+
+    and #%00111000              ; Allinea il valore fornito ai 2KB ed estrai l'offset
+
+    lsr a                       ; La posizione della pagina all'interno del banco (bit 2-5)
+    lsr a                       ; va spostata nei bit meno significativi
+    ora #%00000001              ; Il bit 0 non è usato e solitamente è messo ad 1
+    sta ._MASK                  ; Conserva temporaneamente la maschera di selezione
+
+    lda VMCSB                   ; Indica al VIC-II la posizione del generatore di caratteri
+    and #%11110000
+    ora ._MASK
+    sta VMCSB
+    +Bra .Exit_VIC_CHRGEN
+
+  .RdChr:
+    jsr VIC_BANK                ; C è già 1, quindi leggi la posizione iniziale del banco video
+    sta ._MASK                  ; e conservalo temporaneamente
+
+    lda VMCSB                   ; Estrai dal registro di controllo la posizione
+    and #%00001110              ; della pagina iniziale del generatore di caratteri (il bit 0 non è usato)
+    asl a                       ; e moltiplicala per 4
+    asl a
+    ora ._MASK                  ; Aggiungi la pagina iniziale del banco video
+
+  .Exit_VIC_CHRGEN:
+    rts
+
+  ._MASK            !byte 0
+  !zone
+}
+
+; Titolo:                 Seleziona la posizione iniziale della memoria ad alta risoluzione
+; Nome:                   VIC_BITMAP
+; Scopo:                  Imposta o recupera l'indirizzo iniziale della memoria ad alta risoluzione
+;
+;                          C = 0: .A contiene la pagina iniziale della memoria ad alta risoluzione, che può variare da $00 a $E0 ad intervalli di $20.
+;                                 Valori differenti vengono allineati al limite più prossimo.
+;
+;                          C = 1: Il valore della pagina iniziale del generatore di caratteri viene restituito in .A
+;
+; Parametri di ingresso:  .A:   Indirizzo della pagina iniziale del blocco di memoria
+;                          C:   Selettore di lettura/scrittura
+; Parametri di uscita:    .A:   Indirizzo della pagina iniziale del blocco di memoria
+; Registri alterati:      .A
+; Puntatori zp alterati:  Nessuno
+; Temporanei alterati:    Nessuno
+; Dipendenze esterne:     symbols.asm, standard.asm, kernal.asm, vic_ii.asm, cia.asm
+!macro Vic_Bitmap {
+  !zone Vic_Bitmap
+  VIC_BITMAP:
+    bcs .RdBmp                  ; Se C=1 vai alla routine di recupero indirizzo
+
+    and #%00100000              ; Allinea il valore fornito agli 8KB ed estrai l'offset
+
+    lsr a                       ; La posizione della pagina all'interno del banco (bit 5)
+    lsr a                       ; va spostata nel bit 3
+    sta ._MASK                  ; Conserva temporaneamente la maschera di selezione
+
+    lda VMCSB                   ; Indica al VIC-II la posizione dell'area grafica bitmap
+    and #%11110111
+    ora ._MASK
+    sta VMCSB
+    +Bra .Exit_VIC_BITMAP
+
+  .RdBmp:
+    jsr VIC_BANK                ; C è già 1, quindi leggi la posizione iniziale del banco video
+    sta ._MASK                  ; e conservalo temporaneamente
+
+    lda VMCSB                   ; Estrai dal registro di controllo la posizione
+    and #%00001000              ; della pagina iniziale dell'area grafica bitmap
+    asl a                       ; e moltiplicala per 4
+    asl a
+    ora ._MASK                  ; Aggiungi la pagina iniziale del banco video
+
+  .Exit_VIC_BITMAP:
+    rts
+
+  ._MASK            !byte 0
+  !zone
+}
+
+; Titolo:                 Sposta il generatore di caratteri in RAM
+; Nome:                   MOVCHR
+; Scopo:                  Sposta il generatore di caratteri dalla ROM alla RAM, nella posizione definita
+;                         dalla configurazione del chip VIC-II attualmente in uso
+; Parametri di ingresso:  Nessuno
+; Parametri di uscita:    Nessuno
+; Registri alterati:      A, X, Y
+; Puntatori zp alterati:  ZP_1, ZP_2
+; Temporanei alterati:    Nessuno
+; Dipendenze esterne:     Nessuna
+!macro Vic_Copy_CharGen {
+  !zone Vic_Copy_CharGen
+  VIC_COPY_CHRGEN:
+    lda #<CHRGEN            ; Prepara i puntatori:
+    sta ZP_1                ; ZP_1 = CHRGEN
+    lda #>CHRGEN
+    sta ZP_1+1
+
+    lda #$00                ; ZP_2 = VICCHR*$1000
+    sta ZP_2
+    sec
+    jsr VIC_CHARGEN
+    sta ZP_2+1
+
+    jsr ENACHR              ; Attiva il generatore di caratteri e disabilita l'I/O
+
+    ldy #$00                ; Trasferisci 4KB di ROM, cioè 16 pagine di memoria
+    ldx #16
+
+  .Loop_Copy_Page:
+    lda (ZP_1),y
+    sta (ZP_2),y
+
+    inc ZP_1
+    inc ZP_2
+    bne .Loop_Copy_Page
+
+    inc ZP_1+1
+    inc ZP_2+1
+
+    dex
+    bne .Loop_Copy_Page
+
+    jsr DISCHR              ; Riabilita l'I/O
+
+  .Exit_VIC_COPY_CHRGEN:
+    rts
+  !zone
+}
+
+; Titolo:                 Abilita la modalità grafica bitmap
+; Nome:                   BMPON
+; Scopo:                  Attiva la modalità grafica bitmap
+; Parametri di ingresso:  Nessuno
+; Parametri di uscita:    Nessuno
+; Registri alterati:      Nessuno
+; Puntatori zp alterati:  Nessuno
+; Temporanei alterati:    Nessuno
+; Dipendenze esterne:     Nessuna
+!macro Vic_Hires_On {
+  lda SCROLY
+  ora #%00100000                ; Setta il bit #5.
+  sta SCROLY
+}
+
+; Titolo:                 Disabilita la modalità grafica bitmap
+; Nome:                   BMPOFF
+; Scopo:                  Disattiva la modalità grafica bitmap
+; Parametri di ingresso:  Nessuno
+; Parametri di uscita:    Nessuno
+; Registri alterati:      Nessuno
+; Puntatori zp alterati:  Nessuno
+; Temporanei alterati:    Nessuno
+; Dipendenze esterne:     Nessuna
+!macro Vic_Hires_Off {
+  lda SCROLY
+  and #%11011111                ; Resetta il bit #5.
+  sta SCROLY
+}
+
+; Titolo:                 Abilita la modalità colore esteso
+; Nome:                   ECMON
+; Scopo:                  Attiva la modalità modalità colore esteso
+; Parametri di ingresso:  Nessuno
+; Parametri di uscita:    Nessuno
+; Registri alterati:      Nessuno
+; Puntatori zp alterati:  Nessuno
+; Temporanei alterati:    Nessuno
+; Dipendenze esterne:     Nessuna
+!macro Vic_Ext_Color_On {
+  lda SCROLY
+  ora #%01000000                ; Setta il bit #6.
+  sta SCROLY
+}
+
+; Titolo:                 Disabilita la modalità modalità colore esteso
+; Nome:                   ECMOFF
+; Scopo:                  Disattiva la modalità modalità colore esteso
+; Parametri di ingresso:  Nessuno
+; Parametri di uscita:    Nessuno
+; Registri alterati:      Nessuno
+; Puntatori zp alterati:  Nessuno
+; Temporanei alterati:    Nessuno
+; Dipendenze esterne:     Nessuna
+!macro Vic_Ext_Color_Off {
+  lda SCROLY
+  and #%10111111                ; Resetta il bit #6.
+  sta SCROLY
+}
+
+; Titolo:                 Abilita la modalità grafica multicolore
+; Nome:                   MCMON
+; Scopo:                  Attiva la modalità grafica multicolore
+; Parametri di ingresso:  Nessuno
+; Parametri di uscita:    Nessuno
+; Registri alterati:      Nessuno
+; Puntatori zp alterati:  Nessuno
+; Temporanei alterati:    Nessuno
+; Dipendenze esterne:     Nessuna
+!macro Vic_Multicolor_On {
+  lda SCROLX
+  ora #%00010000                ; Setta il bit #4.
+  sta SCROLX
+}
+
+; Titolo:                 Disabilita la modalità grafica multicolore
+; Nome:                   MCMOFF
+; Scopo:                  Disattiva la modalità grafica multicolore
+; Parametri di ingresso:  Nessuno
+; Parametri di uscita:    Nessuno
+; Registri alterati:      Nessuno
+; Puntatori zp alterati:  Nessuno
+; Temporanei alterati:    Nessuno
+; Dipendenze esterne:     Nessuna
+!macro Vic_Multicolor_Off {
+  lda SCROLX
+  and #%11101111                ; Resetta il bit #4.
+  sta SCROLX
+}
