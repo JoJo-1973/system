@@ -9,35 +9,37 @@
 ;                         EXTCOL, BGCOL0, BGCOL1, BGCOL2, BGCOL3, COLOR
 ;
 ;                         Se il valore è VIC_TRANSPARENT il registro resta immutato.
-; Parametri di ingresso:  .A: Indirizzo del blocco di memoria (byte alto)
-;                         .X: Indirizzo del blocco di memoria (byte basso)
+; Parametri di ingresso:  .A: Indirizzo del blocco di memoria (byte basso)
+;                         .X: Indirizzo del blocco di memoria (byte alto)
 ; Parametri di uscita:    Nessuno
 ; Registri alterati:      .A, .Y
 ; Puntatori zp alterati:  ZP_5
 ; Temporanei alterati:    Nessuno
 ; Dipendenze esterne:     symbols.asm, standard.asm, kernal.asm, vic_ii.asm
-!macro Vic_Colors {
-  !zone Vic_Colors
-  VIC_COLORS:
-    ldy #0                      ; Prepara i registri
-    stx ZP_5
-    sta ZP_5+1
+!macro Vic_Palette {
+  !zone Vic_Palette
+  VIC_PALETTE:
+    sta ZP_5                    ; Prepara i registri.
+    stx ZP_5+1
+    ldy #5
 
-  .Loop_Color:
-    lda (ZP_5),y                ; I primi 5 registri sono mappati in indirizzi consecutivi
-    bmi .Skip_Reg
-    sta EXTCOL,y
-
-  .Skip_Reg:
-    iny
-    cpy #5
-    bcc .Loop_Color
-
-    lda (ZP_5),y                ; L'ultimo no
-    bmi .Exit_VIC_COLORS
+    lda (ZP_5),y                ; Imposta il colore dei caratteri: se il colore è il valore speciale
+    bmi .Vic_Registers          ; VIC_TRANSPARENT allora non modificare il registro colore.
     sta COLOR
 
-  .Exit_VIC_COLORS:
+  .Vic_Registers:
+    dey
+
+  .Loop_Color_Register:
+    lda (ZP_5),y                ; Imposta i registri colore: se il colore è il valore speciale
+    bmi .Next_Color_Register    ; VIC_TRANSPARENT allora non modificare il registro.
+    sta EXTCOL,y
+
+  .Next_Color_Register:
+    dey
+    bpl .Loop_Color_Register
+
+  .Exit_VIC_PALETTE:
     rts
   !zone
 }
