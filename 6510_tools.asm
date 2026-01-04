@@ -1,8 +1,8 @@
 ; Macro per la configurazione dei banchi di memoria del 6510
 
-; Titolo:                 Disabilita il BASIC
+; Titolo:                 MACRO: Disabilita il BASIC
 ; Nome:                   Disable_BASIC
-; Scopo:                  Rendi visibile il banco di memoria LORAM ($A000-$BFFF), disabilitando il BASIC
+; Scopo:                  Disabilita la ROM del BASIC rendendo visibile il banco di memoria LORAM ($A000-$BFFF).
 ; Parametri di ingresso:  ---
 ; Parametri di uscita:    ---
 ; Registri alterati:      .A
@@ -15,9 +15,9 @@
   sta R6510
 }
 
-; Titolo:                 Riabilita il BASIC
+; Titolo:                 MACRO: Riabilita il BASIC
 ; Nome:                   Enable_BASIC
-; Scopo:                  Maschera il banco di memoria LORAM ($A000-$BFFF), riabilitando il BASIC
+; Scopo:                  Riabilita la ROM del BASIC rendendo invisibile il banco di memoria LORAM ($A000-$BFFF).
 ; Parametri di ingresso:  ---
 ; Parametri di uscita:    ---
 ; Registri alterati:      .A
@@ -30,10 +30,10 @@
   sta R6510
 }
 
-; Titolo:                 Disabilita il Kernal
+; Titolo:                 MACRO: Disabilita il Kernal
 ; Nome:                   Disable_Kernal
-; Scopo:                  Rendi visibile il banco di memoria HIRAM ($E000-$FFFF), disabilitando il Kernal
-;                         ATTENZIONE: gli interrupt saranno disabilitati
+; Scopo:                  Disabilita la ROM del Kernal rendendo visibile il banco di memoria HIRAM ($E000-$FFFF).
+;                         ATTENZIONE: gli interrupt saranno disabilitati.
 ; Parametri di ingresso:  ---
 ; Parametri di uscita:    ---
 ; Registri alterati:      .A
@@ -48,10 +48,10 @@
   sta R6510
 }
 
-; Titolo:                 Riabilita il Kernal
+; Titolo:                 MACRO: Riabilita il Kernal
 ; Nome:                   Enable_Kernal
-; Scopo:                  Maschera il banco di memoria HIRAM ($E000-$FFFF), riabilitando il Kernal
-;                         ATTENZIONE: gli interrupt saranno riabilitati
+; Scopo:                  Riabilita la ROM del Kernal rendendo invisibile il banco di memoria HIRAM ($E000-$FFFF).
+;                         ATTENZIONE: gli interrupt saranno riabilitati.
 ; Parametri di ingresso:  ---
 ; Parametri di uscita:    ---
 ; Registri alterati:      .A
@@ -66,38 +66,38 @@
   cli                           ; Riabilita le interruzioni.
 }
 
-; Titolo:                 Maschera il generatore di caratteri
-; Nome:                   Disable_CharGen
-; Scopo:                  Maschera il banco di memoria CHARGEN ($D000-$DFFF), riabilitando l'I/O
-; Parametri di ingresso:  ---
-; Parametri di uscita:    ---
-; Registri alterati:      .A
-; Puntatori zp alterati:  ---
-; Temporanei alterati:    ---
-; Dipendenze esterne:     symbols.asm, cia.asm
-!macro Disable_CharGen {
-  lda R6510                     ; Setta il bit #2.
-  ora #%00000100
-  sta R6510
-
-  lda #%10000001                ; Riabilita le interruzioni del timer di sistema.
-  sta CIAICR
-}
-
-; Titolo:                 Rendi visibile il generatore di caratteri
-; Nome:                   Enable_CharGen
-; Scopo:                  Rendi visibile il banco di memoria CHARGEN ($D000-$DFFF), disabilitando l'I/O
+; Titolo:                 MACRO: Disabilita l'I/O
+; Nome:                   Disable_IO
+; Scopo:                  Disabilita gli indirizzi di I/O rendendo visibile il banco di memoria CHARGEN ($D000-$DFFF).
 ; Parametri di ingresso:  ---
 ; Parametri di uscita:    ---
 ; Registri alterati:      .A
 ; Puntatori zp alterati:  Definito dall'utente
 ; Temporanei alterati:    ---
 ; Dipendenze esterne:     symbols.asm, cia.asm
-!macro Enable_CharGen {
+!macro Disable_IO {
   lda #%01111111                ; Disabilita le interruzioni del timer di sistema.
   sta CIAICR
 
   lda R6510                     ; Azzera il bit #2.
   and #%11111011
   sta R6510
+}
+
+; Titolo:                 MACRO: Riabilita l'I/O
+; Nome:                   Enable_IO
+; Scopo:                  Riabilita gli indirizzi di I/O rendendo invisibile il banco di memoria CHARGEN ($D000-$DFFF).
+; Parametri di ingresso:  ---
+; Parametri di uscita:    ---
+; Registri alterati:      .A
+; Puntatori zp alterati:  ---
+; Temporanei alterati:    ---
+; Dipendenze esterne:     symbols.asm, cia.asm
+!macro Enable_IO {
+  lda R6510                     ; Setta il bit #2.
+  ora #%00000100
+  sta R6510
+
+  lda #%10000001                ; Riabilita le interruzioni del timer di sistema.
+  sta CIAICR
 }
