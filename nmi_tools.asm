@@ -1,58 +1,48 @@
-; Titolo:                 Resetta HIBASE dopo RUN/STOP + RESTORE
-; Nome:                   NMIHIB
+; Titolo:                 ROUTINE: Resetta HIBASE dopo RUN/STOP + RESTORE
+; Nome:                   NMI_HIBASE
 ; Scopo:                  Dopo un RUN/STOP + RESTORE il VIC viene riconfigurato con i valori di default
 ;                         salvo che la variabile di sistema HIBASE non viene reinizializzata; questa
-;                         routine risolve il problema inserendosi nella routine di interrupt NMI
-; Parametri di ingresso:  Nessuno
-; Parametri di uscita:    Nessuno
-; Registri alterati:      A
-; Puntatori zp alterati:  Nessuno
-; Temporanei alterati:    Nessuno
-; Dipendenze esterne:     Nessuna
+;                         routine risolve il problema inserendosi nella routine di interrupt NMI.
+; Parametri di ingresso:  ---
+; Parametri di uscita:    ---
+; Registri alterati:      .A
+; Puntatori zp alterati:  ---
+; Temporanei alterati:    ---
+; Dipendenze esterne:     symbols.asm
+!zone NMI_HiBase
+NMI_HIBASE:
+  lda #<.New_NMI_Handler        ; Imposta il nuovo gestore delle interruzioni non mascherabili.
+  sta NMIVEC
+  lda #>.New_NMI_Handler
+  sta NMIVEC+1
 
-NMIHIB  LDA NMINV               ; Salva il vettore NMI originale
-        STA OLDNMI
-        LDA NMINV+1
-        STA OLDNMI+1
+.Exit_NMI_HIBASE:
+  rts
 
-        LDA #<NEWNMI            ; e sostituiscilo col nuovo
-        STA NMINV
-        LDA #>NEWNMI
-        STA NMINV+1
+.New_NMI_Handler:
+  pha                           ; Salva l'accumulatore sullo stack.
+  lda #>VICSCN                  ; Resetta il byte alto dell'indirizzo base dello schermo a 1024.
+  sta HIBASE
+  pla                           ; Recupera l'accumulatore dallo stack.
+  jmp NMIHND                    ; Esegui il normale gestore delle interruzioni non mascherabili.
+!zone
 
-        RTS
+; Titolo:                 ROUTINE: Ripristina il vettore NMI originale
+; Nome:                   NMI_Restore
+; Scopo:                  Questa routine ripristina il vettore NMI originale annullando le modifiche apportate da NMI_HIBASE.
+; Parametri di ingresso:  ---
+; Parametri di uscita:    ---
+; Registri alterati:      .A
+; Puntatori zp alterati:  ---
+; Temporanei alterati:    ---
+; Dipendenze esterne:     symbols.asm
+!zone NMI_Restore
+NMI_RESTORE:
+  lda #<NMIHND
+  sta NMIVEC
+  lda #>NMIHND
+  sta NMIVEC+1
 
-; Titolo:                 Ripristina il vettore NMI originale
-; Nome:                   NMIRES
-; Scopo:                  Questa routine ripristina il vettore NMI originale annullando
-;                         le modifiche apportate da NMIHIB
-; Parametri di ingresso:  Nessuno
-; Parametri di uscita:    Nessuno
-; Registri alterati:      A
-; Puntatori zp alterati:  Nessuno
-; Temporanei alterati:    Nessuno
-; Dipendenze esterne:     Nessuna
-
-NMIRES  LDA OLDNMI              ; e sostituiscilo col nuovo
-        STA NMINV
-        LDA OLDNMI+1
-        STA NMINV+1
-
-        RTS
-
-; Titolo:                 Ripristina il valore di default di HIBASE
-; Nome:                   NEWNMI
-; Scopo:                  Questa routine ripristina il valore di default di HIBASE
-;                         per poi proseguire con la normale routine di NMI
-; Parametri di ingresso:  Nessuno
-; Parametri di uscita:    Nessuno
-; Registri alterati:      Nessuno
-; Puntatori zp alterati:  Nessuno
-; Temporanei alterati:    Nessuno
-; Dipendenze esterne:     Nessuna
-
-NEWNMI  PHA                     ; Salva i flag e l'accumulatore sullo stack
-        LDA #4                  ; Resetta l'inizio della memoria schermo a 1024
-        STA HIBASE
-        PLA                     ; Recupera l'accumulatore e i flag dallo stack
-        JMP (OLDNMI)            ; Esegui la normale routine interrupt NMI
+.Exit_NMI_RESTORE:
+  rts
+!zone
