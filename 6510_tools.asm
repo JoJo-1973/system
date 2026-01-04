@@ -1,109 +1,103 @@
-!zone Memory
+; Macro per la configurazione dei banchi di memoria del 6510
 
 ; Titolo:                 Disabilita il BASIC
-; Nome:                   DISBAS
+; Nome:                   Disable_BASIC
 ; Scopo:                  Rendi visibile il banco di memoria LORAM ($A000-$BFFF), disabilitando il BASIC
-; Parametri di ingresso:  Nessuno
-; Parametri di uscita:    Nessuno
-; Registri alterati:      A
-; Puntatori zp alterati:  Nessuno
-; Temporanei alterati:    Nessuno
-; Dipendenze esterne:     Nessuna
-
-DISBAS  LDA R6510               ; Azzera il bit 0
-        AND #%11111110
-        STA R6510
-
-        RTS
+; Parametri di ingresso:  ---
+; Parametri di uscita:    ---
+; Registri alterati:      .A
+; Puntatori zp alterati:  ---
+; Temporanei alterati:    ---
+; Dipendenze esterne:     symbols.asm
+!macro Disable_BASIC {
+  lda R6510                     ; Azzera il bit #0.
+  and #%11111110
+  sta R6510
+}
 
 ; Titolo:                 Riabilita il BASIC
-; Nome:                   ENABAS
+; Nome:                   Enable_BASIC
 ; Scopo:                  Maschera il banco di memoria LORAM ($A000-$BFFF), riabilitando il BASIC
-; Parametri di ingresso:  Nessuno
-; Parametri di uscita:    Nessuno
-; Registri alterati:      A
-; Puntatori zp alterati:  Nessuno
-; Temporanei alterati:    Nessuno
-; Dipendenze esterne:     Nessuna
-
-ENABAS  LDA R6510               ; Setta il bit 0
-        ORA #%00000001
-        STA R6510
-
-        RTS
+; Parametri di ingresso:  ---
+; Parametri di uscita:    ---
+; Registri alterati:      .A
+; Puntatori zp alterati:  ---
+; Temporanei alterati:    ---
+; Dipendenze esterne:     symbols.asm
+!macro Enable_BASIC {
+  lda R6510                     ; Setta il bit #0.
+  ora #%00000001
+  sta R6510
+}
 
 ; Titolo:                 Disabilita il Kernal
-; Nome:                   DISKER
+; Nome:                   Disable_Kernal
 ; Scopo:                  Rendi visibile il banco di memoria HIRAM ($E000-$FFFF), disabilitando il Kernal
 ;                         ATTENZIONE: gli interrupt saranno disabilitati
-; Parametri di ingresso:  Nessuno
-; Parametri di uscita:    Nessuno
-; Registri alterati:      A
-; Puntatori zp alterati:  Nessuno
-; Temporanei alterati:    Nessuno
-; Dipendenze esterne:     Nessuna
+; Parametri di ingresso:  ---
+; Parametri di uscita:    ---
+; Registri alterati:      .A
+; Puntatori zp alterati:  ---
+; Temporanei alterati:    ---
+; Dipendenze esterne:     symbols.asm
+!macro Disable_Kernal {
+  sei                           ; Disabilita le interruzioni.
 
-DISKER  SEI                     ; Disabilita gli interrupt
-
-        LDA R6510               ; Azzera il bit 1
-        AND #%11111101
-        STA R6510
-
-        RTS
+  lda R6510                     ; Azzera il bit #1.
+  and #%11111101
+  sta R6510
+}
 
 ; Titolo:                 Riabilita il Kernal
-; Nome:                   ENAKER
+; Nome:                   Enable_Kernal
 ; Scopo:                  Maschera il banco di memoria HIRAM ($E000-$FFFF), riabilitando il Kernal
 ;                         ATTENZIONE: gli interrupt saranno riabilitati
-; Parametri di ingresso:  Nessuno
-; Parametri di uscita:    Nessuno
-; Registri alterati:      A
-; Puntatori zp alterati:  Nessuno
-; Temporanei alterati:    Nessuno
-; Dipendenze esterne:     Nessuna
+; Parametri di ingresso:  ---
+; Parametri di uscita:    ---
+; Registri alterati:      .A
+; Puntatori zp alterati:  ---
+; Temporanei alterati:    ---
+; Dipendenze esterne:     symbols.asm
+!macro Enable_Kernal {
+  lda R6510                     ; Setta il bit #1.
+  ora #%00000010
+  sta R6510
 
-ENAKER  LDA R6510               ; Setta il bit 1
-        ORA #%00000010
-        STA R6510
-
-        CLI                     ; Riabilita gli interrupt
-
-        RTS
+  cli                           ; Riabilita le interruzioni.
+}
 
 ; Titolo:                 Maschera il generatore di caratteri
-; Nome:                   DISCHR
+; Nome:                   Disable_CharGen
 ; Scopo:                  Maschera il banco di memoria CHARGEN ($D000-$DFFF), riabilitando l'I/O
-; Parametri di ingresso:  Nessuno
-; Parametri di uscita:    Nessuno
-; Registri alterati:      A
-; Puntatori zp alterati:  Nessuno
-; Temporanei alterati:    Nessuno
-; Dipendenze esterne:     Nessuna
+; Parametri di ingresso:  ---
+; Parametri di uscita:    ---
+; Registri alterati:      .A
+; Puntatori zp alterati:  ---
+; Temporanei alterati:    ---
+; Dipendenze esterne:     symbols.asm, cia.asm
+!macro Disable_CharGen {
+  lda R6510                     ; Setta il bit #2.
+  ora #%00000100
+  sta R6510
 
-DISCHR  LDA R6510               ; Setta il bit 2
-        ORA #%00000100
-        STA R6510
-
-        LDA #%10000001          ; Riabilita l'interrupt del timer di sistema
-        STA CIAICR
-
-        RTS
+  lda #%10000001                ; Riabilita le interruzioni del timer di sistema.
+  sta CIAICR
+}
 
 ; Titolo:                 Rendi visibile il generatore di caratteri
-; Nome:                   ENACHR
+; Nome:                   Enable_CharGen
 ; Scopo:                  Rendi visibile il banco di memoria CHARGEN ($D000-$DFFF), disabilitando l'I/O
-; Parametri di ingresso:  Nessuno
-; Parametri di uscita:    Nessuno
-; Registri alterati:      A
+; Parametri di ingresso:  ---
+; Parametri di uscita:    ---
+; Registri alterati:      .A
 ; Puntatori zp alterati:  Definito dall'utente
-; Temporanei alterati:    Nessuno
-; Dipendenze esterne:     Nessuna
+; Temporanei alterati:    ---
+; Dipendenze esterne:     symbols.asm, cia.asm
+!macro Enable_CharGen {
+  lda #%01111111                ; Disabilita le interruzioni del timer di sistema.
+  sta CIAICR
 
-ENACHR  LDA #%01111111          ; Disabilita l'interrupt del timer di sistema
-        STA CIAICR
-
-        LDA R6510               ; Azzera il bit 2
-        AND #%11111011
-        STA R6510
-
-        RTS
+  lda R6510                     ; Azzera il bit #2.
+  and #%11111011
+  sta R6510
+}

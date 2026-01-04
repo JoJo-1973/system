@@ -263,7 +263,7 @@
     jsr VIC_CHARGEN
     sta INDEX2+1
 
-    jsr ENACHR                  ; Attiva il generatore di caratteri e disabilita l'I/O.
+    +Enable_CharGen             ; Rendi visibile il generatore di caratteri e disabilita l'I/O.
 
     ldy #$00                    ; Trasferisci 4KB di ROM, cioè 16 pagine di memoria.
     ldx #16
@@ -282,7 +282,7 @@
     dex
     bne .Loop_Copy_Page
 
-    jsr DISCHR                  ; Riabilita l'I/O.
+    +Disable_CharGen            ; Riabilita l'I/O e rendi invisibile il generatore di caratteri.
 
   .Exit_VIC_COPY_CHARGEN:
     rts
