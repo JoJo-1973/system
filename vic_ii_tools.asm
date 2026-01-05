@@ -378,3 +378,97 @@
   and #%11101111                ; Resetta il bit #4.
   sta SCROLX
 }
+
+; Titolo:                 MACRO: Calcola l'indirizzo di una cella video date le sue coordinate
+; Nome:                   Compute_Cell
+; Scopo:                  Date le coordinate (x,y) di una cella di memoria video e l'indirizzo base della cella
+;                         di coordinate (0,0) la routine restituisce in INDEX2 l'indirizzo della locazione
+;                         di memoria corrispondente.
+; Parametri di ingresso:  .A: Byte alto dell'indirizzo di base della memoria video
+;                         .X: Colonna della cella video
+;                         .Y: Riga della cella video
+; Parametri di uscita:    INDEX2: Indirizzo della cella video
+; Registri alterati:      .A
+; Puntatori zp alterati:  INDEX2
+; Temporanei alterati:    ---
+; Dipendenze esterne:     symbols.asm
+!macro Compute_Cell {
+  !zone Compute_Cell
+  COMPUTE_CELL:
+    pha                         ; Salva l'indirizzo di base sullo stack.
+    clc                         ; Somma il valore della colonna selezionata al byte basso dell'offset della posizione iniziale della riga scelta.
+    txa
+    adc .ROW_OFFSET_LO,y
+    sta INDEX2                  ; Salva il byte basso dell'indirizzo della cella in INDEX2.
+
+    pla                         ; Estrai il byte alto dell'offset e sommalo all'indirizzo alto
+    adc .ROW_OFFSET_HI,y        ; della pagina base assieme al riporto generato dalla somma precedente,
+    sta INDEX2+1                ; poi salvalo in INDEX2+1.
+
+  .Exit_COMPUTE_CELL:
+    rts
+
+  .ROW_OFFSET_LO:               ; Byte basso degli offset della posizione iniziale di ciascuna riga dello schermo.
+    !byte   <0,  <40,  <80, <120, <160, <200, <240, <280
+    !byte <320, <360, <400, <440, <480, <520, <560, <600
+    !byte <640, <680, <720, <760, <800, <840, <880, <920
+    !byte <960
+
+  .ROW_OFFSET_HI:               ; Byte alto degli offset della posizione iniziale di ciascuna riga dello schermo.
+    !byte   >0,  >40,  >80, >120, >160, >200, >240, >280
+    !byte >320, >360, >400, >440, >480, >520, >560, >600
+    !byte >640, >680, >720, >760, >800, >840, >880, >920
+    !byte >960
+  !zone
+}
+
+; Titolo:                 MACRO: Recupera il contenuto di una cella della memoria schermo date le sue coordinate
+; Nome:                   Get_Screen_Cell
+; Scopo:                  Date le coordinate (x,y) di una cella di memoria schermo la routine restituisce
+;                         il contenuto della cella di memoria corrispondente.
+; Parametri di ingresso:  .X: Colonna della cella schermo
+;                         .Y: Riga della cella schermo
+; Parametri di uscita:    .A: Contenuto della cella di memoria schermo alle coordinate (x,y)
+; Registri alterati:      .A, .Y
+; Puntatori zp alterati:  INDEX2
+; Temporanei alterati:    ---
+; Dipendenze esterne:     symbols.asm
+!macro Get_Screen_Cell {
+  !zone Get_Screen_Cell
+  GET_SCREEN_CELL:
+    lda HIBASE                  ; Inizializza .A con l'indirizzo di base della memoria schermo
+    jsr COMPUTE_CELL            ; e calcola l'indirizzo della cella.
+
+    ldy #0                      ; Restituisci in .A il contenuto della cella.
+    lda (INDEX2),y
+
+  .Exit_GET_SCREEN_CELL:
+    rts
+  !zone
+}
+
+; Titolo:                 MACRO: Recupera il contenuto di una cella della memoria colore date le sue coordinate
+; Nome:                   Get_Color_Cell
+; Scopo:                  Date le coordinate (x,y) di una cella di memoria colore la routine restituisce
+;                         il contenuto della cella di memoria corrispondente.
+; Parametri di ingresso:  .X: Colonna della cella colore
+;                         .Y: Riga della cella colore
+; Parametri di uscita:    .A: Contenuto della cella di memoria colore alle coordinate (x,y)
+; Registri alterati:      .A, .Y
+; Puntatori zp alterati:  INDEX2
+; Temporanei alterati:    ---
+; Dipendenze esterne:     symbols.asm
+!macro Get_Color_Cell {
+  !zone Get_Color_Cell
+  GET_COLOR_CELL:
+    lda #>COLRAM                ; Inizializza .A con l'indirizzo di base della memoria colore
+    jsr COMPUTE_CELL            ; e calcola l'indirizzo della cella.
+
+    ldy #0                      ; Restituisci in .A il contenuto della cella
+    lda (INDEX2),y              ; azzerando i bit spurii.
+    and #%00001111
+
+  .Exit_GET_COLOR_CELL:
+    rts
+  !zone
+}
