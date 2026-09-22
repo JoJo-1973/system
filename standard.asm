@@ -199,3 +199,26 @@ REG_YXA           = $FFFF7      ; Indirizzamento implicito a 24 bit con i regist
 !macro Skip2 {
   !byte $2C                     ; L'esecuzione di questo byte maschera l'opcode da due byte che segue
 }
+
+; Titolo:                 MACRO: Consuma cicli a vuoto
+; Nome:                   Delay_5n1
+; Descrizione:            Consuma un numero di cicli determinato dalla formula 5*n+1.
+; Parametri di ingresso:  reg_: Registro usato per contare le iterazioni - ".X" oppure ".Y"
+;                         n_:   Parametro della formula 5*n_+1 che determina il numero di cicli da consumare
+; Parametri di uscita:    ---
+; Alterazioni registri:   .X, .Y
+; Alterazioni pag. zero:  ---
+; Dipendenze esterne:     ---
+!macro Delay_5n1 reg_, n_ {
+  !if reg_ = ".X" {
+    ldx #n_
+    dex
+    bne *-1
+  } else if reg_ = ".Y" {
+    ldy #n_
+    dey
+    bne *-1
+  } else {
+    !error "Illegal register"
+  }
+}
