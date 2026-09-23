@@ -10,14 +10,14 @@
 ; Parametri di uscita:    ---
 ; Alterazioni registri:   .A
 ; Alterazioni pag. zero:  ---
-; Dipendenze esterne:     vic_ii.asm, cia.asm
-!macro Init_Raster_System flag_loc_ {
+; Dipendenze esterne:     chip/vic_ii.asm, chip/cia.asm
+!macro Init_Raster_System .flag {
   !zone Init_Raster_System
 
-  !if flag_loc_ > 255 {
+  !if .flag > 255 {
     !error "ERROR: __VIC_MODEL must be in zero-page."
   } else {
-    !set __VIC_MODEL = flag_loc_
+    !set __VIC_MODEL = .flag
   }
 
   .Loop_Wait_Top:
@@ -88,27 +88,27 @@
   !zone
 }
 
-!macro Start_Raster_IRQ stable_flag_, line_, handler_ {
-  !if stable_flag_ = "STABLE" {
-    +Start_Stable_IRQ line_, handler_
+!macro Start_Raster_IRQ .stable, .rasterline, .irq_handler {
+  !if .stable = "STABLE" {
+    +Start_Stable_IRQ .rasterline, .irq_handler
   } else {
-    +Start_Unstable_IRQ line_, handler_
+    +Start_Unstable_IRQ .rasterline, .irq_handler
   }
 }
 
-!macro Enter_Raster_IRQ stable_flag_, line_ {
-  !if stable_flag_ = "STABLE" {
-    +Enter_Stable_IRQ line_
+!macro Enter_Raster_IRQ .stable, .rasterline {
+  !if .stable = "STABLE" {
+    +Enter_Stable_IRQ .rasterline
   } else {
     +Enter_Unstable_IRQ
   }
 }
 
-!macro Next_Raster_IRQ stable_flag_, line_, handler_, fastexit_ {
-  !if stable_flag_ = "STABLE" {
-    +Next_Stable_IRQ line_, handler_, fastexit_
+!macro Next_Raster_IRQ .stable, .rasterline, .irq_handler, .fast_exit {
+  !if .stable = "STABLE" {
+    +Next_Stable_IRQ .rasterline, .irq_handler, .fast_exit
   } else {
-    +Next_Unstable_IRQ line_, handler_, fastexit_
+    +Next_Unstable_IRQ .rasterline, .irq_handler, .fast_exit
   }
 }
 
@@ -121,12 +121,12 @@
 ; Alterazioni registri:   .A
 ; Alterazioni pag. zero:  ---
 ; Dipendenze esterne:     vic.asm, cia.asm
-!macro Set_Rasterline line_ {
-  lda #<line_                   ; I primi 8 bit della posizione della linea vanno qui.
+!macro Set_Rasterline .rasterline {
+  lda #<.rasterline                   ; I primi 8 bit della posizione della linea vanno qui.
   sta RASTER
 
   lda SCROLY
-  !if line_ > 255 {
+  !if .rasterline > 255 {
     ora #%10000000              ; Se la linea è > 255 allora setta il bit #7 di SCROLY
   } else {
     and #%01111111              ; altrimenti resettalo.
@@ -140,20 +140,20 @@
   bmi *+2                       ; (+2) se il chip è la versione "New NTSC" allora (+3).
 }
 
-!macro Start_Unstable_IRQ line_, handler_ {
+!macro Start_Unstable_IRQ .rasterline, .irq_handler {
   !if __KERNAL_STATUS = "DISABLED" {
-    lda #<handler_              ; Se il Kernal è stato disabilitato usa il vettore a $FFFE.
+    lda #<.irq_handler              ; Se il Kernal è stato disabilitato usa il vettore a $FFFE.
     sta IRBVEC
-    lda #>handler_
+    lda #>.irq_handler
     sta IRBVEC+1
   } else {
-    lda #<handler_              ; Se il Kernal è stato abilitato usa il vettore a $0314.
+    lda #<.irq_handler              ; Se il Kernal è stato abilitato usa il vettore a $0314.
     sta CINV
-    lda #>handler_
+    lda #>.irq_handler
     sta CINV+1
   }
 
-  +Set_Rasterline line_         ; Imposta il registro di confronto della rasterline.
+  +Set_Rasterline .rasterline         ; Imposta il registro di confronto della rasterline.
 
   cli                           ; Riabilita le interruzioni.
 }
@@ -172,23 +172,23 @@
   asl VICIRQ                    ; Recepisci l'esecuzione dell'interruzione dovuta al raster.
 }
 
-!macro Next_Unstable_IRQ line_, handler_, fastexit_ {
+!macro Next_Unstable_IRQ .rasterline, .irq_handler, .fast_exit {
   !if __KERNAL_STATUS = "DISABLED" {
-    lda #<handler_              ; Se il Kernal è stato disabilitato usa il vettore a $FFFE.
+    lda #<.irq_handler              ; Se il Kernal è stato disabilitato usa il vettore a $FFFE.
     sta IRBVEC
-    lda #>handler_
+    lda #>.irq_handler
     sta IRBVEC+1
   } else {
-    lda #<handler_              ; Se il Kernal è stato abilitato usa il vettore a $0314.
+    lda #<.irq_handler              ; Se il Kernal è stato abilitato usa il vettore a $0314.
     sta CINV
-    lda #>handler_
+    lda #>.irq_handler
     sta CINV+1
   }
 
-  +Set_Rasterline line_         ; Imposta il registro di confronto della rasterline.
+  +Set_Rasterline .rasterline         ; Imposta il registro di confronto della rasterline.
 
   !if __KERNAL_STATUS = "DISABLED" {
-    pla                         ; Se il Kernal è stato disabilitato il parametro 'fastexit_' non ha importanza:
+    pla                         ; Se il Kernal è stato disabilitato il parametro '.fast_exit' non ha importanza:
     tay                         ; ripristina .Y
 
     pla                         ; poi .X
@@ -198,7 +198,7 @@
 
     rti
   } else {
-    !if fastexit_ = "FAST" {
+    !if .fast_exit = "FAST" {
       jmp IRQMIN                ; Se si richiede un'uscita veloce ripristina semplicemente i registri
     } else {
       jmp IRQHND                ; altrimenti salta al gestore delle interruzioni standard.
@@ -206,22 +206,22 @@
   }
 }
 
-!macro Start_Stable_IRQ line_, handler_ {
+!macro Start_Stable_IRQ .rasterline, .irq_handler {
   !if __KERNAL_STATUS = "DISABLED" {
-    lda #<handler_              ; Se il Kernal è stato disabilitato usa il vettore a $FFFE.
+    lda #<.irq_handler              ; Se il Kernal è stato disabilitato usa il vettore a $FFFE.
     sta IRBVEC
-    lda #>handler_
+    lda #>.irq_handler
     sta IRBVEC+1
 
-    +Set_Rasterline (line_-3)   ; La prima interruzione avverrà tre linee prima di quella desiderata
+    +Set_Rasterline (.rasterline-3)   ; La prima interruzione avverrà tre linee prima di quella desiderata
                                 ; per dare il tempo al sistema di impostare la seconda interruzione.
   } else {
-    lda #<handler_              ; Se il Kernal è stato abilitato usa il vettore a $0314.
+    lda #<.irq_handler              ; Se il Kernal è stato abilitato usa il vettore a $0314.
     sta CINV
-    lda #>handler_
+    lda #>.irq_handler
     sta CINV+1
 
-    +Set_Rasterline (line_-3)   ; La prima interruzione avverrà tre linee prima di quella desiderata
+    +Set_Rasterline (.rasterline-3)   ; La prima interruzione avverrà tre linee prima di quella desiderata
                                 ; per dare il tempo al sistema di impostare la seconda interruzione.
   }
 
@@ -239,7 +239,7 @@
 ; dell'istruzione, seguita dalla durata in cicli dell'istruzione stessa.
 ; I valori si riferiscono alla versione PAL del chip VIC-II: la macro +Raster_Grip
 ; si occupa di gestire eventuali cicli aggiuntivi presenti nelle versioni Old e New NTSC.
-!macro Enter_Stable_IRQ line_ {
+!macro Enter_Stable_IRQ .rasterline {
   !if __KERNAL_STATUS = "DISABLED" {
     pha                         ; 09-15 (+3)   Se il Kernal è stato disabilitato salva per prima cosa .A
 
@@ -256,7 +256,7 @@
     lda #>@Sync                 ; 34-40 (+2)
     sta IRBVEC+1                ; 36-42 (+4)
 
-    +Set_Rasterline (line_-1)   ; 40-46 (+16)  Imposta il registro di confronto della rasterline alla linea che precede quella desiderata.
+    +Set_Rasterline (.rasterline-1)   ; 40-46 (+16)  Imposta il registro di confronto della rasterline alla linea che precede quella desiderata.
 
     cli                         ; 56-62 (+2)
 
@@ -279,7 +279,7 @@
     lda #>@Sync                 ; 50-56 (+2)
     sta CINV+1                  ; 52-58 (+4)
 
-    +Set_Rasterline (line_-1)   ; 56-62 (+16)  Imposta il registro di confronto della rasterline alla linea che precede quella desiderata.
+    +Set_Rasterline (.rasterline-1)   ; 56-62 (+16)  Imposta il registro di confronto della rasterline alla linea che precede quella desiderata.
 
     cli                         ; 09-15 (+2)
 
@@ -340,25 +340,25 @@
                                 ;              della linea impostata: RASTER STABILIZZATO!
 }
 
-!macro Next_Stable_IRQ line_, handler_, fastexit_ {
+!macro Next_Stable_IRQ .rasterline, .irq_handler, .fast_exit {
   !if __KERNAL_STATUS = "DISABLED" {
-    lda #<handler_              ; Se il Kernal è stato disabilitato usa il vettore a $FFFE.
+    lda #<.irq_handler              ; Se il Kernal è stato disabilitato usa il vettore a $FFFE.
     sta IRBVEC
-    lda #>handler_
+    lda #>.irq_handler
     sta IRBVEC+1
 
-    +Set_Rasterline (line_-3)   ; Imposta il registro di confronto della rasterline.
+    +Set_Rasterline (.rasterline-3)   ; Imposta il registro di confronto della rasterline.
   } else {
-    lda #<handler_              ; Se il Kernal è stato abilitato usa il vettore a $0314.
+    lda #<.irq_handler              ; Se il Kernal è stato abilitato usa il vettore a $0314.
     sta CINV
-    lda #>handler_
+    lda #>.irq_handler
     sta CINV+1
 
-    +Set_Rasterline (line_-3)   ; Imposta il registro di confronto della rasterline.
+    +Set_Rasterline (.rasterline-3)   ; Imposta il registro di confronto della rasterline.
   }
 
   !if __KERNAL_STATUS = "DISABLED" {
-    pla                         ; Se il Kernal è stato disabilitato il parametro 'fastexit_' non ha importanza:
+    pla                         ; Se il Kernal è stato disabilitato il parametro '.fast_exit' non ha importanza:
     tay                         ; ripristina .Y
 
     pla                         ; poi .X
@@ -368,7 +368,7 @@
 
     rti
   } else {
-    !if fastexit_ = "FAST" {
+    !if .fast_exit = "FAST" {
       jmp IRQMIN                ; Se si richiede un'uscita veloce ripristina semplicemente i registri
     } else {
       jmp IRQHND                ; altrimenti salta al gestore delle interruzioni standard.
