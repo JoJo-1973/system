@@ -21,21 +21,21 @@ REG_YXA           = $FFFF7      ; Indirizzamento implicito a 24 bit con i regist
 
 ; Titolo:                 MACRO: Preambolo BASIC
 ; Nome:                   BASIC_Preamble
-; Descrizione:            Inserisce una linea di BASIC con un comando SYS ed opzionalmente un commento.
-; Parametri di ingresso:  line_num: Numero di linea
-;                         label:    Etichetta del punto di ingresso
-;                         comment:  Commento (opzionale)
+; Descrizione:            Inserisce una linea di BASIC con un comando SYS ed opzionalmente un .commento.
+; Parametri di ingresso:  .line_num: Numero di linea
+;                         .label:    Etichetta del punto di ingresso
+;                         .comment:  Commento (opzionale)
 ; Parametri di uscita:    ---
 ; Alterazioni registri:   ---
 ; Alterazioni pag. zero:  ---
-; Dipendenze esterne:     c64_symbols.asm
-!macro BASIC_Preamble line_num, label, comment {
+; Dipendenze esterne:     c64/symbols.asm
+!macro BASIC_Preamble .line_num, .label, .comment {
   *= BASTXT                     ; La definizione di BASTXT è contenuta del file dei simboli relativo all'architettura scelta (VIC-20, C64, ecc.)
 
-  !ifndef comment {
-    !basic line_num, label
+  !ifndef .comment {
+    !basic .line_num, .label
   } else {
-    !basic line_num, ":", $8F, " ", comment, label
+    !basic .line_num, ":", $8F, " ", .comment, .label
   }
 }
 
@@ -46,7 +46,7 @@ REG_YXA           = $FFFF7      ; Indirizzamento implicito a 24 bit con i regist
 ; Parametri di uscita:    ---
 ; Alterazioni registri:   ---
 ; Alterazioni pag. zero:  ---
-; Dipendenze esterne:     c64_symbols.asm
+; Dipendenze esterne:     c64/symbols.asm
 !macro Exit_to_BASIC {
   ldx #ERR_READY
   jmp (IERROR)
@@ -55,17 +55,17 @@ REG_YXA           = $FFFF7      ; Indirizzamento implicito a 24 bit con i regist
 ; Titolo:                 MACRO: Scambia di valore due puntatori a 8 bit
 ; Nome:                   Swap8
 ; Descrizione:            Scambia di valore due puntatori a 8 bit usando i registri.
-; Parametri di ingresso:  addr1:Indirizzo del primo valore
-;                         addr2:Indirizzo del secondo valore
+; Parametri di ingresso:  .addr1: Indirizzo del primo valore
+;                         .addr2: Indirizzo del secondo valore
 ; Parametri di uscita:    ---
 ; Alterazioni registri:   .X, .Y
 ; Alterazioni pag. zero:  ---
 ; Dipendenze esterne:     ---
-!macro Swap8 addr1, addr2 {
-  ldx addr1
-  ldy addr2
-  stx addr2
-  sty addr1
+!macro Swap8 .addr1, .addr2 {
+  ldx .addr1
+  ldy .addr2
+  stx .addr2
+  sty .addr1
 }
 
 ; Titolo:                 MACRO: Salva tutti i registri sullo stack
@@ -203,19 +203,19 @@ REG_YXA           = $FFFF7      ; Indirizzamento implicito a 24 bit con i regist
 ; Titolo:                 MACRO: Consuma cicli a vuoto
 ; Nome:                   Delay_5n1
 ; Descrizione:            Consuma un numero di cicli determinato dalla formula 5*n+1.
-; Parametri di ingresso:  reg_: Registro usato per contare le iterazioni - ".X" oppure ".Y"
-;                         n_:   Parametro della formula 5*n_+1 che determina il numero di cicli da consumare
+; Parametri di ingresso:  .reg: Registro usato per contare le iterazioni - ".X" oppure ".Y"
+;                         .n:   Parametro della formula 5*.n+1 che determina il numero di cicli da consumare
 ; Parametri di uscita:    ---
 ; Alterazioni registri:   .X, .Y
 ; Alterazioni pag. zero:  ---
 ; Dipendenze esterne:     ---
-!macro Delay_5n1 reg_, n_ {
-  !if reg_ = ".X" {
-    ldx #n_
+!macro Delay_5n1 .reg, .n {
+  !if .reg = ".X" {
+    ldx #.n
     dex
     bne *-1
-  } else if reg_ = ".Y" {
-    ldy #n_
+  } else if .reg = ".Y" {
+    ldy #.n
     dey
     bne *-1
   } else {
