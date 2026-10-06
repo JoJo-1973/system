@@ -16,7 +16,7 @@
 ; Puntatori zp alterati:  INDEX2
 ; Temporanei alterati:    ---
 ; Dipendenze esterne:     symbols.asm, standard.asm, kernal.asm, vic_ii.asm
-!macro Vic_Palette {
+!macro Install_Vic_Palette {
   !zone Vic_Palette
   VIC_PALETTE:
     sta INDEX2                  ; Prepara i registri.
@@ -57,7 +57,7 @@
 ; Puntatori zp alterati:  ---
 ; Temporanei alterati:    ---
 ; Dipendenze esterne:     symbols.asm, standard.asm, kernal.asm, vic_ii.asm, cia.asm
-!macro Vic_Bank {
+!macro Install_Vic_Bank {
   !zone Vic_Bank
   VIC_BANK:
     bcs .RdBnk                  ; Se C=1 vai alla routine di recupero indirizzo.
@@ -109,7 +109,7 @@
 ; Puntatori zp alterati:  ---
 ; Temporanei alterati:    ---
 ; Dipendenze esterne:     symbols.asm, standard.asm, kernal.asm, vic_ii.asm, cia.asm
-!macro Vic_Screen {
+!macro Install_Vic_Screen {
   !zone Vic_Screen
   VIC_SCREEN:
     bcs .RdScr                  ; Se C=1 vai alla routine di recupero indirizzo.
@@ -157,7 +157,7 @@
 ; Puntatori zp alterati:  ---
 ; Temporanei alterati:    ---
 ; Dipendenze esterne:     symbols.asm, standard.asm, kernal.asm, vic_ii.asm, cia.asm
-!macro Vic_CharGen {
+!macro Install_Vic_CharGen {
   !zone Vic_CharGen
   VIC_CHARGEN:
     bcs .RdChr                  ; Se C=1 vai alla routine di recupero indirizzo.
@@ -205,7 +205,7 @@
 ; Puntatori zp alterati:  Nessuno
 ; Temporanei alterati:    Nessuno
 ; Dipendenze esterne:     symbols.asm, standard.asm, kernal.asm, vic_ii.asm, cia.asm
-!macro Vic_Bitmap {
+!macro Install_Vic_Bitmap {
   !zone Vic_Bitmap
   VIC_BITMAP:
     bcs .RdBmp                  ; Se C=1 vai alla routine di recupero indirizzo.
@@ -249,7 +249,7 @@
 ; Puntatori zp alterati:  INDEX, INDEX2
 ; Temporanei alterati:    ---
 ; Dipendenze esterne:     symbols.asm, standard.asm, kernal.asm, vic_ii.asm, cia.asm, 6510_tools.asm
-!macro Vic_Copy_CharGen {
+!macro Install_Vic_Copy_CharGen {
   !zone Vic_Copy_CharGen
   VIC_COPY_CHARGEN:
     lda #<CHRGEN                ; Prepara i puntatori:
@@ -380,7 +380,7 @@
 }
 
 ; Titolo:                 MACRO: Calcola l'indirizzo di una cella video date le sue coordinate
-; Nome:                   Compute_Cell
+; Nome:                   Compute_Cell_Address
 ; Scopo:                  Date le coordinate (x,y) di una cella di memoria video e l'indirizzo base della cella
 ;                         di coordinate (0,0) la routine restituisce in INDEX2 l'indirizzo della locazione
 ;                         di memoria corrispondente.
@@ -392,9 +392,9 @@
 ; Puntatori zp alterati:  INDEX2
 ; Temporanei alterati:    ---
 ; Dipendenze esterne:     symbols.asm
-!macro Compute_Cell {
-  !zone Compute_Cell
-  COMPUTE_CELL:
+!macro Install_Compute_Cell_Address {
+  !zone Compute_Cell_Address
+  COMPUTE_CELL_ADDRESS:
     pha                         ; Salva l'indirizzo di base sullo stack.
     clc                         ; Somma il valore della colonna selezionata al byte basso dell'offset della posizione iniziale della riga scelta.
     txa
@@ -433,11 +433,11 @@
 ; Puntatori zp alterati:  INDEX2
 ; Temporanei alterati:    ---
 ; Dipendenze esterne:     symbols.asm
-!macro Get_Screen_Cell {
+!macro Install_Get_Screen_Cell {
   !zone Get_Screen_Cell
   GET_SCREEN_CELL:
     lda HIBASE                  ; Inizializza .A con l'indirizzo di base della memoria schermo
-    jsr COMPUTE_CELL            ; e calcola l'indirizzo della cella.
+    jsr COMPUTE_CELL_ADDRESS    ; e calcola l'indirizzo della cella.
 
     ldy #0                      ; Restituisci in .A il contenuto della cella.
     lda (INDEX2),y
@@ -458,7 +458,7 @@
 ; Puntatori zp alterati:  INDEX2
 ; Temporanei alterati:    ---
 ; Dipendenze esterne:     symbols.asm
-!macro Get_Color_Cell {
+!macro Install_Get_Color_Cell {
   !zone Get_Color_Cell
   GET_COLOR_CELL:
     lda #>COLRAM                ; Inizializza .A con l'indirizzo di base della memoria colore
