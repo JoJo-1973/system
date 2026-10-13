@@ -2,11 +2,11 @@
 
 ; Titolo:                 MACRO: Imposta i registri colore del chip VIC-II
 ; Nome:                   VIC_PALETTE
-; Scopo:                  Imposta i colori di bordo, sfondo, carattere e multicolore/colore esteso in un'unica operazione.
+; Scopo:                  Imposta i colori di bordo, sfondo, carattere, multicolore/colore esteso  e multicolore/sprite in un'unica operazione.
 ;                         L'indirizzo in .A/.X punta ad un blocco di memoria che contiene in successione i valori
 ;                         da assegnare ai seguenti registri:
 ;
-;                         EXTCOL, BGCOL0, BGCOL1, BGCOL2, BGCOL3, COLOR
+;                         EXTCOL, BGCOL0, BGCOL1, BGCOL2, BGCOL3, COLOR, SPMC0, SPMC1
 ;
 ;                         Se il valore è VIC_TRANSPARENT il registro resta immutato.
 ; Parametri di ingresso:  .A: Indirizzo del blocco di memoria (byte basso)
@@ -21,10 +21,23 @@
   VIC_PALETTE:
     sta INDEX2                  ; Prepara i registri.
     stx INDEX2+1
-    ldy #5
+    ldy #7                      ; Inizia dal valore di SPMC1.
 
+  .SpMc1
+    lda (INDEX2),y              ; Imposta il secondo colore ausiliario degli sprite: se il colore è il valore speciale
+    bmi .SpMc0                  ; VIC_TRANSPARENT allora non modificare il registro SPMC1.
+    sta SPMC1
+
+  .SpMc0:
+    dey
+    lda (INDEX2),y              ; Imposta il primo colore ausiliario degli sprite: se il colore è il valore speciale
+    bmi .Color                  ; VIC_TRANSPARENT allora non modificare il registro SPMC0.
+    sta SPMC0
+
+  .Color:
+    dey
     lda (INDEX2),y              ; Imposta il colore dei caratteri: se il colore è il valore speciale
-    bmi .Vic_Registers          ; VIC_TRANSPARENT allora non modificare il registro colore.
+    bmi .Vic_Registers          ; VIC_TRANSPARENT allora non modificare il registro COLOR.
     sta COLOR
 
   .Vic_Registers:
