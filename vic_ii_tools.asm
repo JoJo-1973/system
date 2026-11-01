@@ -2,11 +2,11 @@
 
 ; Titolo:                 MACRO: Imposta i registri colore del chip VIC-II
 ; Nome:                   VIC_PALETTE
-; Scopo:                  Imposta i colori di bordo, sfondo, carattere, multicolore/colore esteso  e multicolore/sprite in un'unica operazione.
+; Scopo:                  Imposta i colori di bordo, sfondo, carattere e multicolore/colore esteso in un'unica operazione.
 ;                         L'indirizzo in .A/.X punta ad un blocco di memoria che contiene in successione i valori
 ;                         da assegnare ai seguenti registri:
 ;
-;                         EXTCOL, BGCOL0, BGCOL1, BGCOL2, BGCOL3, COLOR, SPMC0, SPMC1
+;                         EXTCOL, BGCOL0, BGCOL1, BGCOL2, BGCOL3, COLOR
 ;
 ;                         Se il valore è VIC_TRANSPARENT il registro resta immutato.
 ; Parametri di ingresso:  .A: Indirizzo del blocco di memoria (byte basso)
@@ -16,28 +16,15 @@
 ; Puntatori zp alterati:  INDEX2
 ; Temporanei alterati:    ---
 ; Dipendenze esterne:     symbols.asm, standard.asm, kernal.asm, vic_ii.asm
-!macro Install_Vic_Palette {
+!macro Vic_Palette {
   !zone Vic_Palette
   VIC_PALETTE:
     sta INDEX2                  ; Prepara i registri.
     stx INDEX2+1
-    ldy #7                      ; Inizia dal valore di SPMC1.
+    ldy #5
 
-  .SpMc1
-    lda (INDEX2),y              ; Imposta il secondo colore ausiliario degli sprite: se il colore è il valore speciale
-    bmi .SpMc0                  ; VIC_TRANSPARENT allora non modificare il registro SPMC1.
-    sta SPMC1
-
-  .SpMc0:
-    dey
-    lda (INDEX2),y              ; Imposta il primo colore ausiliario degli sprite: se il colore è il valore speciale
-    bmi .Color                  ; VIC_TRANSPARENT allora non modificare il registro SPMC0.
-    sta SPMC0
-
-  .Color:
-    dey
     lda (INDEX2),y              ; Imposta il colore dei caratteri: se il colore è il valore speciale
-    bmi .Vic_Registers          ; VIC_TRANSPARENT allora non modificare il registro COLOR.
+    bmi .Vic_Registers          ; VIC_TRANSPARENT allora non modificare il registro colore.
     sta COLOR
 
   .Vic_Registers:
@@ -70,7 +57,7 @@
 ; Puntatori zp alterati:  ---
 ; Temporanei alterati:    ---
 ; Dipendenze esterne:     symbols.asm, standard.asm, kernal.asm, vic_ii.asm, cia.asm
-!macro Install_Vic_Bank {
+!macro Vic_Bank {
   !zone Vic_Bank
   VIC_BANK:
     bcs .RdBnk                  ; Se C=1 vai alla routine di recupero indirizzo.
@@ -122,7 +109,7 @@
 ; Puntatori zp alterati:  ---
 ; Temporanei alterati:    ---
 ; Dipendenze esterne:     symbols.asm, standard.asm, kernal.asm, vic_ii.asm, cia.asm
-!macro Install_Vic_Screen {
+!macro Vic_Screen {
   !zone Vic_Screen
   VIC_SCREEN:
     bcs .RdScr                  ; Se C=1 vai alla routine di recupero indirizzo.
@@ -170,7 +157,7 @@
 ; Puntatori zp alterati:  ---
 ; Temporanei alterati:    ---
 ; Dipendenze esterne:     symbols.asm, standard.asm, kernal.asm, vic_ii.asm, cia.asm
-!macro Install_Vic_CharGen {
+!macro Vic_CharGen {
   !zone Vic_CharGen
   VIC_CHARGEN:
     bcs .RdChr                  ; Se C=1 vai alla routine di recupero indirizzo.
@@ -218,7 +205,7 @@
 ; Puntatori zp alterati:  Nessuno
 ; Temporanei alterati:    Nessuno
 ; Dipendenze esterne:     symbols.asm, standard.asm, kernal.asm, vic_ii.asm, cia.asm
-!macro Install_Vic_Bitmap {
+!macro Vic_Bitmap {
   !zone Vic_Bitmap
   VIC_BITMAP:
     bcs .RdBmp                  ; Se C=1 vai alla routine di recupero indirizzo.
@@ -262,7 +249,7 @@
 ; Puntatori zp alterati:  INDEX, INDEX2
 ; Temporanei alterati:    ---
 ; Dipendenze esterne:     symbols.asm, standard.asm, kernal.asm, vic_ii.asm, cia.asm, 6510_tools.asm
-!macro Install_Vic_Copy_CharGen {
+!macro Vic_Copy_CharGen {
   !zone Vic_Copy_CharGen
   VIC_COPY_CHARGEN:
     lda #<CHRGEN                ; Prepara i puntatori:
@@ -393,7 +380,7 @@
 }
 
 ; Titolo:                 MACRO: Calcola l'indirizzo di una cella video date le sue coordinate
-; Nome:                   Compute_Cell_Address
+; Nome:                   Compute_Cell
 ; Scopo:                  Date le coordinate (x,y) di una cella di memoria video e l'indirizzo base della cella
 ;                         di coordinate (0,0) la routine restituisce in INDEX2 l'indirizzo della locazione
 ;                         di memoria corrispondente.
@@ -405,9 +392,9 @@
 ; Puntatori zp alterati:  INDEX2
 ; Temporanei alterati:    ---
 ; Dipendenze esterne:     symbols.asm
-!macro Install_Compute_Cell_Address {
-  !zone Compute_Cell_Address
-  COMPUTE_CELL_ADDRESS:
+!macro Compute_Cell {
+  !zone Compute_Cell
+  COMPUTE_CELL:
     pha                         ; Salva l'indirizzo di base sullo stack.
     clc                         ; Somma il valore della colonna selezionata al byte basso dell'offset della posizione iniziale della riga scelta.
     txa
@@ -446,11 +433,11 @@
 ; Puntatori zp alterati:  INDEX2
 ; Temporanei alterati:    ---
 ; Dipendenze esterne:     symbols.asm
-!macro Install_Get_Screen_Cell {
+!macro Get_Screen_Cell {
   !zone Get_Screen_Cell
   GET_SCREEN_CELL:
     lda HIBASE                  ; Inizializza .A con l'indirizzo di base della memoria schermo
-    jsr COMPUTE_CELL_ADDRESS    ; e calcola l'indirizzo della cella.
+    jsr COMPUTE_CELL            ; e calcola l'indirizzo della cella.
 
     ldy #0                      ; Restituisci in .A il contenuto della cella.
     lda (INDEX2),y
@@ -471,7 +458,7 @@
 ; Puntatori zp alterati:  INDEX2
 ; Temporanei alterati:    ---
 ; Dipendenze esterne:     symbols.asm
-!macro Install_Get_Color_Cell {
+!macro Get_Color_Cell {
   !zone Get_Color_Cell
   GET_COLOR_CELL:
     lda #>COLRAM                ; Inizializza .A con l'indirizzo di base della memoria colore

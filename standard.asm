@@ -1,41 +1,21 @@
 ; Macro utili per la programmazione
 
-ADDR_IMM          = 0           ; Indirizzamento immediato a 16/24 bit
-ADDR_ABS          = 1           ; Indirizzamento assoluto a 16/24 bit
-ADDR_ZER          = 2           ; Indirizzamento pagina zero a 16/24 bit
-ADDR_ACC          = 3           ; Indirizzamento accumulatore
-
-REG_AX            = $FFFF0      ; Indirizzamento implicito a 16 bit con i registri .A (alto) e .X (basso)
-REG_AY            = $FFFF1      ; Indirizzamento implicito a 16 bit con i registri .A (alto) e .Y (basso)
-REG_XY            = $FFFF2      ; Indirizzamento implicito a 16 bit con i registri .X (alto) e .Y (basso)
-REG_XA            = $FFFF3      ; Indirizzamento implicito a 16 bit con i registri .X (alto) e .A (basso)
-REG_YA            = $FFFF4      ; Indirizzamento implicito a 16 bit con i registri .Y (alto) e .A (basso)
-REG_YX            = $FFFF5      ; Indirizzamento implicito a 16 bit con i registri .Y (alto) e .X (basso)
-REG_AXY           = $FFFF6      ; Indirizzamento implicito a 24 bit con i registri .A (alto), .X (medio) e .Y (basso)
-REG_YXA           = $FFFF7      ; Indirizzamento implicito a 24 bit con i registri .Y (alto), .X (medio) e .A (basso)
-
-!source <system/branch.asm>
-!source <mem.asm>
-!source <math.asm>
-!source <c64/errors.asm>
-
 ; Titolo:                 MACRO: Preambolo BASIC
 ; Nome:                   BASIC_Preamble
-; Descrizione:            Inserisce una linea di BASIC con un comando SYS ed opzionalmente un .commento.
+; Descrizione:            Inserisce una linea di BASIC con un comando SYS ed opzionalmente un commento.
 ; Parametri di ingresso:  .line_num: Numero di linea
 ;                         .label:    Etichetta del punto di ingresso
 ;                         .comment:  Commento (opzionale)
 ; Parametri di uscita:    ---
 ; Alterazioni registri:   ---
 ; Alterazioni pag. zero:  ---
-; Dipendenze esterne:     c64/symbols.asm
+; Dipendenze esterne:     ---
 !macro BASIC_Preamble .line_num, .label, .comment {
-  *= BASTXT                     ; La definizione di BASTXT è contenuta del file dei simboli relativo all'architettura scelta (VIC-20, C64, ecc.)
-
   !ifndef .comment {
     !basic .line_num, .label
   } else {
-    !basic .line_num, ":", $8F, " ", .comment, .label
+    !basic .line_num, ":", $8F, " ", .comment, .label ; Nel caso sia specificato il commento aggiungi ":REM " + .comment in coda
+                                                      ; $8F è il token dell'istruzione "REM"
   }
 }
 
@@ -46,10 +26,10 @@ REG_YXA           = $FFFF7      ; Indirizzamento implicito a 24 bit con i regist
 ; Parametri di uscita:    ---
 ; Alterazioni registri:   ---
 ; Alterazioni pag. zero:  ---
-; Dipendenze esterne:     c64/symbols.asm
+; Dipendenze esterne:     c64/symbols.asm, c64/errors.asm
 !macro Exit_to_BASIC {
-  ldx #ERR_READY
-  jmp (IERROR)
+  ldx #ERR_READY            ; Carica il codice d'errore corrispondente a "READY."
+  jmp (IERROR)              ; e ritorna al BASIC in maniera pulita
 }
 
 ; Titolo:                 MACRO: Scambia di valore due puntatori a 8 bit
@@ -62,21 +42,21 @@ REG_YXA           = $FFFF7      ; Indirizzamento implicito a 24 bit con i regist
 ; Alterazioni pag. zero:  ---
 ; Dipendenze esterne:     ---
 !macro Swap8 .addr1, .addr2 {
-  ldx .addr1
-  ldy .addr2
+  ldx .addr1            ; Semplicemente carica .X e .Y con i contenuti da scambiare
+  ldy .addr2            ; e riscrivili in ordine inverso
   stx .addr2
   sty .addr1
 }
 
 ; Titolo:                 MACRO: Salva tutti i registri sullo stack
-; Nome:                   PushAXY
+; Nome:                   Push_AXY
 ; Descrizione:            Copia i registri .A, .X e .Y sullo stack.
 ; Parametri di ingresso:  ---
 ; Parametri di uscita:    ---
 ; Alterazioni registri:   .A
 ; Alterazioni pag. zero:  ---
 ; Dipendenze esterne:     ---
-!macro PushAXY {
+!macro Push_AXY {
   pha                           ; Prima .A
 
   txa                           ; poi .X
@@ -87,14 +67,14 @@ REG_YXA           = $FFFF7      ; Indirizzamento implicito a 24 bit con i regist
 }
 
 ; Titolo:                 MACRO: Recupera tutti i registri dallo stack
-; Nome:                   PullAXY
+; Nome:                   Pull_AXY
 ; Descrizione:            Recupera i registri .A, .X e .Y dallo stack.
 ; Parametri di ingresso:  ---
 ; Parametri di uscita:    ---
 ; Alterazioni registri:   .A, .X, .Y
 ; Alterazioni pag. zero:  ---
 ; Dipendenze esterne:     ---
-!macro PullAXY {
+!macro Pull_AXY {
   pla                           ; Prima .Y
   tay
 
@@ -105,17 +85,18 @@ REG_YXA           = $FFFF7      ; Indirizzamento implicito a 24 bit con i regist
 }
 
 ; Titolo:                 MACRO: Salva i registri .X e .Y sullo stack
-; Nome:                   PushXY
+; Nome:                   Push_XY
 ; Descrizione:            Copia i registri .X e .Y sullo stack.
 ; Parametri di ingresso:  ---
 ; Parametri di uscita:    ---
 ; Alterazioni registri:   .A
 ; Alterazioni pag. zero:  ---
 ; Dipendenze esterne:     ---
-!macro PushXY {
-  pha                           ; .A va salvato comunque sullo stack: la sua posizione servirà da buffer durante il recupero dallo stack
+!macro Push_XY {
+  pha                           ; Riserva una posizione sullo stack: servirà a Pull_XY.
+                                ; Il contenuto di questa posizione è irrilevante.
 
-  txa                           ; poi .X
+  txa                           ; poi salva .X
   pha
 
   tya                           ; e per ultimo .Y
@@ -123,19 +104,19 @@ REG_YXA           = $FFFF7      ; Indirizzamento implicito a 24 bit con i regist
 }
 
 ; Titolo:                 MACRO: Recupera i registri .X e .Y dallo stack
-; Nome:                   PullXY
+; Nome:                   Pull_XY
 ; Descrizione:            Recupera i registri .X e .Y dallo stack.
 ; Parametri di ingresso:  ---
 ; Parametri di uscita:    ---
 ; Alterazioni registri:   .X, .Y
 ; Alterazioni pag. zero:  ---
-; Dipendenze esterne:     ---
-!macro PullXY {
+; Dipendenze esterne:     c64/symbols.asm
+!macro Pull_XY {
   tsx                           ; Recupera il puntatore allo stack ed incrementalo di 3 unità:
-  inx                           ; ora .X punta ad una posizione appositamente riservata da PushXY
-  inx                           ; e che non contiene dati utili
-  inx
-  sta STACK,x                   ; e che può essere usata per memorizzare temporaneamente .A
+  inx                           ; ora .X punta ad una posizione appositamente riservata da Push_XY
+  inx                           ; e che non contiene dati utili:
+  inx                           ; poiché .A verrà alterato dalle istruzioni che seguono
+  sta STACK,x                   ; usala per per memorizzare il valore originario di .A
 
   pla                           ; Recupera .Y
   tay
@@ -148,7 +129,7 @@ REG_YXA           = $FFFF7      ; Indirizzamento implicito a 24 bit con i regist
 
 ; Titolo:                 MACRO: Setta il flag oVerflow
 ; Nome:                   SeV
-; Descrizione:            Setta il flag V senza alterare gli altri flag.
+; Descrizione:            Setta il flag V: spreca cicli ed istruzioni, ma non altera gli altri flag.
 ; Parametri di ingresso:  ---
 ; Parametri di uscita:    ---
 ; Alterazioni registri:   .A
@@ -164,61 +145,64 @@ REG_YXA           = $FFFF7      ; Indirizzamento implicito a 24 bit con i regist
 
 ; Titolo:                 MACRO: Complementa il flag Carry
 ; Nome:                   CCf
-; Descrizione:            Complementa il flag C (ma alterando N e Z).
+; Descrizione:            Complementa il flag C: spreca cicli ed istruzioni, ma non altera gli altri flag.
 ; Parametri di ingresso:  ---
 ; Parametri di uscita:    ---
 ; Alterazioni registri:   ---
 ; Alterazioni pag. zero:  ---
 ; Dipendenze esterne:     ---
 !macro CCf {
-  rol a
-  eor #%00000001
-  ror a
+  php                           ; Copia .P in .A
+  pla
+  eor #%00000001                ; Inverti il bit #1
+  pha                           ; Copia .A in .P
+  plp
 }
 
 ; Titolo:                 MACRO: Maschera l'istruzione seguente (1 byte)
 ; Nome:                   Skip1
-; Descrizione:            Inserisci l'istruzione BIT $xx in modo da mascherare l'opcode da un byte che segue.
+; Descrizione:            Inserisci l'istruzione illegale NOP #$xx (durata 2 cicli) in modo da mascherare l'opcode da un byte che segue.
 ; Parametri di ingresso:  ---
 ; Parametri di uscita:    ---
 ; Alterazioni registri:   ---
 ; Alterazioni pag. zero:  ---
 ; Dipendenze esterne:     ---
 !macro Skip1 {
-  !byte $24                     ; L'esecuzione di questo byte maschera l'opcode da un byte che segue
+  !byte $80                     ; L'esecuzione di questa istruzione maschera l'opcode da un byte che segue senza alterare i flag
 }
 
 ; Titolo:                 MACRO: Maschera l'istruzione seguente (2 byte)
 ; Nome:                   Skip2
-; Descrizione:            Inserisci l'istruzione BIT $xxxx in modo da mascherare l'opcode da due byte che segue.
+; Descrizione:            Inserisci l'istruzione illegale NOP $xxxx (durata 4 cicli) in modo da mascherare l'opcode da due byte che segue.
 ; Parametri di ingresso:  ---
 ; Parametri di uscita:    ---
 ; Alterazioni registri:   ---
 ; Alterazioni pag. zero:  ---
 ; Dipendenze esterne:     ---
 !macro Skip2 {
-  !byte $2C                     ; L'esecuzione di questo byte maschera l'opcode da due byte che segue
+  !byte $0C                     ; L'esecuzione di questa istruzione maschera l'opcode da due byte che segue
 }
 
 ; Titolo:                 MACRO: Consuma cicli a vuoto
 ; Nome:                   Delay_5n1
 ; Descrizione:            Consuma un numero di cicli determinato dalla formula 5*n+1.
 ; Parametri di ingresso:  .reg: Registro usato per contare le iterazioni - ".X" oppure ".Y"
-;                         .n:   Parametro della formula 5*.n+1 che determina il numero di cicli da consumare
+;                         .n:   Parametro della formula 5*.n+1 che determina il numero di cicli da consumare.
+                                Porre .n=0 equivale a porre .n=256.
 ; Parametri di uscita:    ---
 ; Alterazioni registri:   .X, .Y
 ; Alterazioni pag. zero:  ---
 ; Dipendenze esterne:     ---
 !macro Delay_5n1 .reg, .n {
-  !if .reg = ".X" {
+  !if .reg = ".X" {       ; Esegui il ciclo usando .X come contatore.
     ldx #.n
     dex
     bne *-1
-  } else if .reg = ".Y" {
+  } else if .reg = ".Y" { ; Esegui il ciclo usando .Y come contatore.
     ldy #.n
     dey
     bne *-1
   } else {
-    !error "Illegal register"
+    !error "Illegal register usage in m_Delay_5n1"
   }
 }

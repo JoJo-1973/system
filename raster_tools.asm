@@ -1,40 +1,5 @@
 ; Macro per impostare IRQ (in genere raster)
 
-; Titolo:                 MACRO: Imposta il registro di confronto della rasterline
-; Nome:                   Set_Rasterline
-; Descrizione:            Imposta il valore del registro di confronto della rasterline al valore desiderato, tenendo conto
-;                         che il valore è a 9 bit suddivisi tra il registro RASTER e il registro SCROLY.
-; Parametri di ingresso:  line: Numero della rasterline
-; Parametri di uscita:    ---
-; Alterazioni registri:   .A
-; Alterazioni pag. zero:  ---
-; Dipendenze esterne:     vic.asm, cia.asm
-!macro Set_Rasterline .rasterline {
-  lda #<.rasterline                   ; I primi 8 bit della posizione della linea vanno qui.
-  sta RASTER
-
-  lda SCROLY
-  !if .rasterline > 255 {
-    ora #%10000000              ; Se la linea è > 255 allora setta il bit #7 di SCROLY
-  } else {
-    and #%01111111              ; altrimenti resettalo.
-  }
-  sta SCROLY
-}
-
-!macro Raster_Grip {
-  bit+1 __VIC_MODEL             ; (+3) Testa il modello di chip VIC-II:
-  bvs *+2                       ; (+2) se il chip è una qualsiasi versione NTSC allora (+3),
-  bmi *+2                       ; (+2) se il chip è la versione "New NTSC" allora (+3).
-}
-
-!macro Spinlock_VBLANK .vblank_flag {
-  lda #0                        ; Resetta il flag di VBLANK
-  sta .vblank_flag
-- cmp .vblank_flag              ; e consuma cicli senza far niente finché
-  beq -                         ; l'interruzione di VBLANK non setta il flag a 1.
-}
-
 ; Titolo:                 MACRO: Prepara il sistema all'esecuzione di una catena di IRQ raster
 ; Nome:                   Init_Raster_System
 ; Descrizione:            Disabilita tutte le sorgenti di interruzioni legate ai chip CIA
@@ -123,30 +88,6 @@
   !zone
 }
 
-!macro Reset_Raster_System .irq_handler {
-  !if __KERNAL_STATUS = "DISABLED" {
-  } else {
-    sei
-
-    lda #<.irq_handler
-    sta CINV
-    lda #>.irq_handler
-    sta CINV+1
-
-    lda #%10000001
-    sta CIAICR
-    lda #%01111111
-    sta CI2ICR
-
-    asl VICIRQ                  ; Neutralizza eventuali IRQ in sospeso richiesti da VIC-II.
-
-    lda #%00000000              ; Silenzia tutte le sorgenti di interruzioni
-    sta IRQMSK                  ; provenienti dal VIC-II.
-
-    cli
-  }
-}
-
 !macro Start_Raster_IRQ .stable, .rasterline, .irq_handler {
   !if .stable = "STABLE" {
     +Start_Stable_IRQ .rasterline, .irq_handler
@@ -164,12 +105,39 @@
 }
 
 !macro Next_Raster_IRQ .stable, .rasterline, .irq_handler, .fast_exit {
-  @End_IRQ:
   !if .stable = "STABLE" {
     +Next_Stable_IRQ .rasterline, .irq_handler, .fast_exit
   } else {
     +Next_Unstable_IRQ .rasterline, .irq_handler, .fast_exit
   }
+}
+
+; Titolo:                 MACRO: Imposta il registro di confronto della rasterline
+; Nome:                   Set_Rasterline
+; Descrizione:            Imposta il valore del registro di confronto della rasterline al valore desiderato, tenendo conto
+;                         che il valore è a 9 bit suddivisi tra il registro RASTER e il registro SCROLY.
+; Parametri di ingresso:  line: Numero della rasterline
+; Parametri di uscita:    ---
+; Alterazioni registri:   .A
+; Alterazioni pag. zero:  ---
+; Dipendenze esterne:     vic.asm, cia.asm
+!macro Set_Rasterline .rasterline {
+  lda #<.rasterline                   ; I primi 8 bit della posizione della linea vanno qui.
+  sta RASTER
+
+  lda SCROLY
+  !if .rasterline > 255 {
+    ora #%10000000              ; Se la linea è > 255 allora setta il bit #7 di SCROLY
+  } else {
+    and #%01111111              ; altrimenti resettalo.
+  }
+  sta SCROLY
+}
+
+!macro Raster_Grip {
+  bit+1 __VIC_MODEL             ; (+3) Testa il modello di chip VIC-II:
+  bvs *+2                       ; (+2) se il chip è una qualsiasi versione NTSC allora (+3),
+  bmi *+2                       ; (+2) se il chip è la versione "New NTSC" allora (+3).
 }
 
 !macro Start_Unstable_IRQ .rasterline, .irq_handler {

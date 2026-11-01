@@ -1,146 +1,569 @@
-; Macro per salti in caso di confronti tra valori con segno e privi di segno
+; ==============================================================================
+; FILE:           branch.asm
+; PROGETTO:       Libreria di Sistema (system.c64)
+; TARGET:         ACME Assembler / MOS 6510 (Commodore 64)
+; DESCRIZIONE:    Macro per salti condizionati relativi e con flag di overflow.
+; DIPENDENZE:     Nessuna
+; REQUISITI ZP:   Nessuno
+; ==============================================================================
 
-; Titolo:                 MACRO: Salta sempre
-; Nome:                   Bra
-; Descrizione:            Sfruttando il fatto che il flag V è raramente utilizzato lo si può utilizzare per forzare un salto relativo.
-; Parametri di ingresso:  addr_: Indirizzo di destinazione del salto relativo
-; Parametri di uscita:    ---
-; Alterazioni registri:   ---
-; Alterazioni pag. zero:  ---
-; Dipendenze esterne:     ---
-!macro Bra addr_ {
-  clv
-  bvc addr_
+; ==============================================================================
+; MACRO: m_Bra
+; ------------------------------------------------------------------------------
+; Descrizione: Salta sempre sfruttando il flag V.
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: .P (oVerflow)
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_Bra .addr_ {
+    clv
+    bvc .addr_
 }
 
-; Titolo:                 MACRO: Salta mai
-; Nome:                   Brn
-; Descrizione:            A volte per motivi di chiarezza e/o dcoumentazione si vuole esplicitare il fatto che un salto relativo NON viene MAI eseguito.
-; Parametri di ingresso:  addr_: Indirizzo di destinazione del salto relativo
-; Parametri di uscita:    ---
-; Alterazioni registri:   ---
-; Alterazioni pag. zero:  ---
-; Dipendenze esterne:     ---
-!macro Brn addr_ {
-  nop                           ; Spreca due byte e quattro cicli.
-  nop
+; ==============================================================================
+; MACRO: m_Brn
+; ------------------------------------------------------------------------------
+; Descrizione: Salta mai (spreca cicli per allineamento/chiarezza).
+; Input:
+;   - .addr_ : Indirizzo (ignorato)
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_Brn .addr_ {
+    nop
+    nop
 }
 
-; Titolo:                 MACRO: Salta se più alto
-; Nome:                   Bhi
-; Descrizione:            Salta se dopo una comparazione (C && !Z) è 1, in altre parole se .A > M (confronto tra numeri privi di segno).
-; Parametri di ingresso:  addr_: Indirizzo di destinazione del salto relativo
-; Parametri di uscita:    ---
-; Alterazioni registri:   ---
-; Alterazioni pag. zero:  ---
-; Dipendenze esterne:     ---
-!macro Bhi addr_ {
-  beq +                         ; Z = 0? Test non passato.
-  bcs addr_                     ; Z = 1? Se anche C = 1 allora test passato,
-+                               ; altrimenti test non passato
+; ==============================================================================
+; MACRO: m_L_Bra
+; ------------------------------------------------------------------------------
+; Descrizione: Salta lungo sempre (jmp).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_L_Bra .addr_ {
+    jmp .addr_
 }
 
-; Titolo:                 MACRO: Salta se più alto o lo stesso
-; Nome:                   Bhs
-; Descrizione:            Salta se dopo una comparazione C è 1, in altre parole se .A >= M (confronto tra numeri privi di segno).
-;                         Alias di BCS.
-; Parametri di ingresso:  addr_: Indirizzo di destinazione del salto relativo
-; Parametri di uscita:    ---
-; Alterazioni registri:   ---
-; Alterazioni pag. zero:  ---
-; Dipendenze esterne:     ---
-!macro Bhs addr_ {
-  bcs addr_                     ; C = 1? Test passato.
+; ==============================================================================
+; MACRO: m_L_Brn
+; ------------------------------------------------------------------------------
+; Descrizione: Salta lungo mai (nop).
+; Input:
+;   - .addr_ : Indirizzo (ignorato)
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_L_Brn .addr_ {
+    nop
+    nop
 }
 
-; Titolo:                 MACRO: Salta se più basso
-; Nome:                   Blo
-; Descrizione:            Salta se dopo una comparazione !C è 1, in altre parole se .A < M (confronto tra numeri privi di segno).
-;                         Alias di BCC.
-; Parametri di ingresso:  addr_: Indirizzo di destinazione del salto relativo
-; Parametri di uscita:    ---
-; Alterazioni registri:   ---
-; Alterazioni pag. zero:  ---
-; Dipendenze esterne:     ---
-!macro Blo addr_ {
-  bcc addr_                     ; C = 0? Test passato.
+; ==============================================================================
+; MACRO: m_Bhi
+; ------------------------------------------------------------------------------
+; Descrizione: Salta se più alto (.A > M senza segno).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_Bhi .addr_ {
+    beq @False
+    bcs .addr_
+
+  @False:
 }
 
-; Titolo:                 MACRO: Salta se più basso o lo stesso
-; Nome:                   Bls
-; Descrizione:            Salta se dopo una comparazione (!C || Z) è 1, in altre parole se .A <= M (confronto tra numeri privi di segno).
-; Parametri di ingresso:  addr_: Indirizzo di destinazione del salto relativo
-; Parametri di uscita:    ---
-; Alterazioni registri:   ---
-; Alterazioni pag. zero:  ---
-; Dipendenze esterne:     ---
-!macro Bls addr_ {
-  bcc addr_                     ; C = 0? Test passato.
-  beq addr_                     ; Z = 0? Test passato.
+; ==============================================================================
+; MACRO: m_Bhs
+; ------------------------------------------------------------------------------
+; Descrizione: Salta se più alto o uguale (.A >= M senza segno).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_Bhs .addr_ {
+    bcs .addr_
 }
 
-; Titolo:                 MACRO: Salta se maggiore
-; Nome:                   Bgt
-; Descrizione:            Salta se dopo una comparazione (!Z && N == V) è 1, in altre parole se .A > M (confronto tra numeri con segno).
-; Parametri di ingresso:  addr_: Indirizzo di destinazione del salto relativo
-; Parametri di uscita:    ---
-; Alterazioni registri:   ---
-; Alterazioni pag. zero:  ---
-; Dipendenze esterne:     ---
-!macro Bgt addr_ {
-  beq ++                        ; Z = 0? Test non passato.
-  bmi +                         ; N = 1? Controlla se V = 1.
-  bvc addr_                     ; N = 0? Se anche V = 0 allora test passato,
-  bvs ++                        ; ma se V = 1 allora test non passato.
-+ bvs addr_                     ; N = 1: se anche .V = 1 allora test passato,
-++                              ; altrimenti test non passato.
+; ==============================================================================
+; MACRO: m_Blo
+; ------------------------------------------------------------------------------
+; Descrizione: Salta se più basso (.A < M senza segno).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_Blo .addr_ {
+    bcc .addr_
 }
 
-; Titolo:                 MACRO: Salta se maggiore o uguale
-; Nome:                   Bge
-; Descrizione:            Salta se dopo una comparazione (N == V) è 1, in altre parole se .A >= M (confronto tra numeri con segno).
-; Parametri di ingresso:  addr_: Indirizzo di destinazione del salto relativo
-; Parametri di uscita:    ---
-; Alterazioni registri:   ---
-; Alterazioni pag. zero:  ---
-; Dipendenze esterne:     ---
-!macro Bge addr_ {
-  bmi +                         ; N = 1? Controlla se V = 1
-  bvc addr_                     ; N = 0? Se anche V = 0 allora test passato,
-  bvs ++                        ; ma se V = 1 allora test non passato.
-+ bvs addr_                     ; N = 1: se anche V = 1 allora test passato,
-++                              ; altrimenti test non passato.
+; ==============================================================================
+; MACRO: m_Bls
+; ------------------------------------------------------------------------------
+; Descrizione: Salta se più basso o uguale (.A <= M senza segno).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_Bls .addr_ {
+    bcc .addr_
+    beq .addr_
 }
 
-; Titolo:                 MACRO: Salta se minore
-; Nome:                   Blt
-; Descrizione:            Salta se dopo una comparazione (N != V) è 1, in altre parole se .A < M (confronto tra numeri con segno).
-; Parametri di ingresso:  addr_: Indirizzo di destinazione del salto relativo
-; Parametri di uscita:    ---
-; Alterazioni registri:   ---
-; Alterazioni pag. zero:  ---
-; Dipendenze esterne:     ---
-!macro Blt addr_ {
-  bpl +                         ; N = 0? Controlla se V = 1.
-  bvc addr_                     ; N = 1? Se V = 0 allora test passato,
-  bvs ++                        ; ma se V = 1 allora test non passato.
-+ bvs addr_                     ; N = 0: se V = 1 allora test passato,
-++                              ; altrimenti test non passato.
+; ==============================================================================
+; MACRO: m_Bgt
+; ------------------------------------------------------------------------------
+; Descrizione: Salta se maggiore (.A > M con segno).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_Bgt .addr_ {
+    beq @False
+    bmi @Check_V
+    bvc .addr_
+    bvs @False
+
+  @Check_V:
+      bvs .addr_
+
+  @False:
 }
 
-; Titolo:                 MACRO: Salta se minore o uguale
-; Nome:                   Ble
-; Descrizione:            Salta se dopo una comparazione (Z || N != V) è 1, in altre parole se .A <= M (confronto tra numeri con segno).
-; Parametri di ingresso:  addr_: Indirizzo di destinazione del salto relativo
-; Parametri di uscita:    ---
-; Alterazioni registri:   ---
-; Alterazioni pag. zero:  ---
-; Dipendenze esterne:     ---
-!macro Ble addr_ {
-  beq addr_                     ; Z = 0? Test passato.
-  bpl +                         ; N = 0? Controlla se V = 1.
-  bvc addr_                     ; N = 1? Se V = 0 allora test passato,
-  bvs ++                        ; ma se V = 1 allora test non passato.
-+ bvs addr_                     ; N = 0: se V = 1 allora test passato,
-++                              ; altrimenti test non passato.
+; ==============================================================================
+; MACRO: m_Bge
+; ------------------------------------------------------------------------------
+; Descrizione: Salta se maggiore o uguale (.A >= M con segno).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_Bge .addr_ {
+    bmi @Check_V
+    bvc .addr_
+    bvs @False
+
+  @Check_V:
+    bvs .addr_
+
+  @False:
+}
+
+; ==============================================================================
+; MACRO: m_Blt
+; ------------------------------------------------------------------------------
+; Descrizione: Salta se minore (.A < M con segno).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_Blt .addr_ {
+    bpl @Check_V
+    bvc .addr_
+    bvs @False
+
+  @Check_V:
+    bvs .addr_
+
+  @False:
+}
+
+; ==============================================================================
+; MACRO: m_Ble
+; ------------------------------------------------------------------------------
+; Descrizione: Salta se minore o uguale (.A <= M con segno).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_Ble .addr_ {
+    beq .addr_
+    bpl @Check_V
+    bvc .addr_
+    bvs @False
+
+  @Check_V:
+    bvs .addr_
+
+  @False:
+}
+
+; ==============================================================================
+; MACRO: m_L_Bhi
+; ------------------------------------------------------------------------------
+; Descrizione: Salta lungo se più alto (senza segno).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_L_Bhi .addr_ {
+    +m_Bls @True_Bhi
+    jmp .addr_
+
+  @True_Bhi:
+}
+
+; ==============================================================================
+; MACRO: m_L_Bhs
+; ------------------------------------------------------------------------------
+; Descrizione: Salta lungo se più alto o uguale (senza segno).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_L_Bhs .addr_ {
+    +m_Blo @True_Blo
+    jmp .addr_
+
+  @True_Blo:
+}
+
+; ==============================================================================
+; MACRO: m_L_Blo
+; ------------------------------------------------------------------------------
+; Descrizione: Salta lungo se più basso (senza segno).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_L_Blo .addr_ {
+    +m_Bhs @True_Bhs
+    jmp .addr_
+
+  @True_Bhs:
+}
+
+; ==============================================================================
+; MACRO: m_L_Bls
+; ------------------------------------------------------------------------------
+; Descrizione: Salta lungo se più basso o uguale (senza segno).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_L_Bls .addr_ {
+    +m_Bhi @True_Bhi
+    jmp .addr_
+
+  @True_Bhi:
+}
+
+; ==============================================================================
+; MACRO: m_L_Bgt
+; ------------------------------------------------------------------------------
+; Descrizione: Salta lungo se maggiore (con segno).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_L_Bgt .addr_ {
+    +m_Ble @True_Ble
+    jmp .addr_
+
+  @True_Ble:
+}
+
+; ==============================================================================
+; MACRO: m_L_Bge
+; ------------------------------------------------------------------------------
+; Descrizione: Salta lungo se maggiore o uguale (con segno).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_L_Bge .addr_ {
+    +m_Blt @True_Blt
+    jmp .addr_
+
+  @True_Blt:
+}
+
+; ==============================================================================
+; MACRO: m_L_Blt
+; ------------------------------------------------------------------------------
+; Descrizione: Salta lungo se minore (con segno).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_L_Blt .addr_ {
+    +m_Bge @True_Bge
+    jmp .addr_
+
+  @True_Bge:
+}
+
+; ==============================================================================
+; MACRO: m_L_Ble
+; ------------------------------------------------------------------------------
+; Descrizione: Salta lungo se minore o uguale (con segno).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_L_Ble .addr_ {
+    +m_Bgt @True_Bgt
+    jmp .addr_
+
+  @True_Bgt:
+}
+
+; ==============================================================================
+; MACRO: m_L_Bcc
+; ------------------------------------------------------------------------------
+; Descrizione: Salta lungo se Carry = 0.
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_L_Bcc .addr_ {
+    bcs @False
+    jmp .addr_
+
+  @False:
+}
+
+; ==============================================================================
+; MACRO: m_L_Bcs
+; ------------------------------------------------------------------------------
+; Descrizione: Salta lungo se Carry = 1.
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_L_Bcs .addr_ {
+    bcc @False
+    jmp .addr_
+
+  @False:
+}
+
+; ==============================================================================
+; MACRO: m_L_Beq
+; ------------------------------------------------------------------------------
+; Descrizione: Salta lungo se Zero = 1 (Equal).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_L_Beq .addr_ {
+    bne @False
+    jmp .addr_
+
+  @False:
+}
+
+; ==============================================================================
+; MACRO: m_L_Bne
+; ------------------------------------------------------------------------------
+; Descrizione: Salta lungo se Zero = 0 (Not Equal).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_L_Bne .addr_ {
+    beq @False
+    jmp .addr_
+
+  @False:
+}
+
+; ==============================================================================
+; MACRO: m_L_Bpl
+; ------------------------------------------------------------------------------
+; Descrizione: Salta lungo se Negative = 0 (Plus).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_L_Bpl .addr_ {
+    bmi @False
+    jmp .addr_
+
+  @False:
+}
+
+; ==============================================================================
+; MACRO: m_L_Bmi
+; ------------------------------------------------------------------------------
+; Descrizione: Salta lungo se Negative = 1 (Minus).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_L_Bmi .addr_ {
+    bpl @False
+    jmp .addr_
+
+  @False:
+}
+
+; ==============================================================================
+; MACRO: m_L_Bvc
+; ------------------------------------------------------------------------------
+; Descrizione: Salta lungo se oVerflow = 0 (Clear).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_L_Bvc .addr_ {
+    bvs @False
+    jmp .addr_
+
+  @False:
+}
+
+; ==============================================================================
+; MACRO: m_L_Bvs
+; ------------------------------------------------------------------------------
+; Descrizione: Salta lungo se oVerflow = 1 (Set).
+; Input:
+;   - .addr_ : Indirizzo di destinazione
+; Output:
+;   - Nessuno
+; Variazione Stack (.S):
+;   - Stabile (0 byte)
+; Registri Modificati: Nessuno
+; Dipendenze Esterne:  Nessuna
+; ==============================================================================
+!macro m_L_Bvs .addr_ {
+    bvc @False
+    jmp .addr_
+
+  @False:
 }
