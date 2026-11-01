@@ -11,14 +11,8 @@
 ; Alterazioni registri:   .A
 ; Alterazioni pag. zero:  ---
 ; Dipendenze esterne:     chip/vic_ii.asm, chip/cia.asm
-!macro Init_Raster_System .flag {
+!macro Init_Raster_System {
   !zone Init_Raster_System
-
-  !if .flag > 255 {
-    !error "ERROR: __VIC_MODEL must be in zero-page."
-  } else {
-    !set __VIC_MODEL = .flag
-  }
 
   .Loop_Wait_Top:
     bit SCROLY                  ; Gira a vuoto finché il raster non ritorna nell'intervallo 0-255.

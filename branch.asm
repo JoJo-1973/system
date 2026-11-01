@@ -10,7 +10,7 @@
 ; ==============================================================================
 ; MACRO: m_Bra
 ; ------------------------------------------------------------------------------
-; Descrizione: Salta sempre sfruttando il flag V.
+; Descrizione: Salta sempre.
 ; Input:
 ;   - .addr_ : Indirizzo di destinazione
 ; Output:
@@ -21,14 +21,13 @@
 ; Dipendenze Esterne:  Nessuna
 ; ==============================================================================
 !macro m_Bra .addr_ {
-    clv
-    bvc .addr_
+    jmp .addr_
 }
 
 ; ==============================================================================
 ; MACRO: m_Brn
 ; ------------------------------------------------------------------------------
-; Descrizione: Salta mai (spreca cicli per allineamento/chiarezza).
+; Descrizione: Salta mai.
 ; Input:
 ;   - .addr_ : Indirizzo (ignorato)
 ; Output:
@@ -39,14 +38,12 @@
 ; Dipendenze Esterne:  Nessuna
 ; ==============================================================================
 !macro m_Brn .addr_ {
-    nop
-    nop
 }
 
 ; ==============================================================================
 ; MACRO: m_L_Bra
 ; ------------------------------------------------------------------------------
-; Descrizione: Salta lungo sempre (jmp).
+; Descrizione: Salta lungo sempre.
 ; Input:
 ;   - .addr_ : Indirizzo di destinazione
 ; Output:
@@ -63,7 +60,7 @@
 ; ==============================================================================
 ; MACRO: m_L_Brn
 ; ------------------------------------------------------------------------------
-; Descrizione: Salta lungo mai (nop).
+; Descrizione: Salta lungo mai.
 ; Input:
 ;   - .addr_ : Indirizzo (ignorato)
 ; Output:
@@ -74,8 +71,6 @@
 ; Dipendenze Esterne:  Nessuna
 ; ==============================================================================
 !macro m_L_Brn .addr_ {
-    nop
-    nop
 }
 
 ; ==============================================================================

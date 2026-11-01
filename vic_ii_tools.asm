@@ -380,7 +380,7 @@
 }
 
 ; Titolo:                 MACRO: Calcola l'indirizzo di una cella video date le sue coordinate
-; Nome:                   Compute_Cell
+; Nome:                   Compute_Cell_Address
 ; Scopo:                  Date le coordinate (x,y) di una cella di memoria video e l'indirizzo base della cella
 ;                         di coordinate (0,0) la routine restituisce in INDEX2 l'indirizzo della locazione
 ;                         di memoria corrispondente.
@@ -392,9 +392,9 @@
 ; Puntatori zp alterati:  INDEX2
 ; Temporanei alterati:    ---
 ; Dipendenze esterne:     symbols.asm
-!macro Compute_Cell {
-  !zone Compute_Cell
-  COMPUTE_CELL:
+!macro Compute_Cell_Address {
+  !zone Compute_Cell_Address
+  COMPUTE_CELL_ADDRESS:
     pha                         ; Salva l'indirizzo di base sullo stack.
     clc                         ; Somma il valore della colonna selezionata al byte basso dell'offset della posizione iniziale della riga scelta.
     txa
@@ -405,7 +405,7 @@
     adc .ROW_OFFSET_HI,y        ; della pagina base assieme al riporto generato dalla somma precedente,
     sta INDEX2+1                ; poi salvalo in INDEX2+1.
 
-  .Exit_COMPUTE_CELL:
+  .Exit_COMPUTE_CELL_ADDRESS:
     rts
 
   .ROW_OFFSET_LO:               ; Byte basso degli offset della posizione iniziale di ciascuna riga dello schermo.
@@ -437,7 +437,7 @@
   !zone Get_Screen_Cell
   GET_SCREEN_CELL:
     lda HIBASE                  ; Inizializza .A con l'indirizzo di base della memoria schermo
-    jsr COMPUTE_CELL            ; e calcola l'indirizzo della cella.
+    jsr COMPUTE_CELL_ADDRESS            ; e calcola l'indirizzo della cella.
 
     ldy #0                      ; Restituisci in .A il contenuto della cella.
     lda (INDEX2),y
@@ -462,7 +462,7 @@
   !zone Get_Color_Cell
   GET_COLOR_CELL:
     lda #>COLRAM                ; Inizializza .A con l'indirizzo di base della memoria colore
-    jsr COMPUTE_CELL            ; e calcola l'indirizzo della cella.
+    jsr COMPUTE_CELL_ADDRESS            ; e calcola l'indirizzo della cella.
 
     ldy #0                      ; Restituisci in .A il contenuto della cella
     lda (INDEX2),y              ; azzerando i bit spurii.
