@@ -327,7 +327,7 @@
                                 ;              O in corrispondenza dell'ultimo ciclo della linea precedente a quella impostata
                                 ;              OPPURE in corrispondenza del primo ciclo della linea impostata.
 
-    beq *+2                     ; (+3/+2)  03  Nel primo caso Z=1 e l'istruzione "beq" impiega 3 cicli,
+    beq *+2                     ; 03 (+3/+2)   Nel primo caso Z=1 e l'istruzione "beq" impiega 3 cicli,
                                 ;              nel secondo caso Z=0 e l'istruzione "beq" impiega 2 cicli.
 
                                 ;              In entrambi i casi la prossima istruzione verrà eseguita a partire dal ciclo 3
