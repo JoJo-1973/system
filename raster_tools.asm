@@ -6,6 +6,16 @@
 ;                         ed attiva UNICAMENTE le interruzioni dovute al raster.
 ;                         Dato che tutte le altre interruzioni sono disabilitate, la gestione della tastiera
 ;                         e dell'I/O seriale sono demandate alla responsabilità del programmatore.
+;                         La macro determina anche il tipo di chip VIC-II installato sul computer sul quale 
+;                         sta girando: un codice identificativo viene conservato nella locazione rappresentata
+;                         dal punto di configurazione __VIC_MODEL. Il significato del codice è il seguente:
+;                           
+;                           $00 = PAL       63 cicli per linea
+;                           $40 = Old NTSC  64 cicli per linea
+;                           $C0 = New NTSC  65 cicli per linea
+;                           
+;                         La macro m_Raster_Grip fa uso di questa informazione per iniettare nel codice 1 o 2
+;                         cicli extra di temporizzazione in base alla versione rilevata del chip VIC-II.
 ; Parametri di ingresso:  ---
 ; Parametri di uscita:    ---
 ; Alterazioni registri:   .A
@@ -31,11 +41,8 @@
     bne .Loop_Spin_261
 
   .Check_Line_262:
-    ldx #$13                    ; Non appena entrati nella linea 261, facciamo passare 96 cicli in modo da
+    +Delay_5n1 ".X", 19         ; Non appena entrati nella linea 261, facciamo passare 96 cicli in modo da
                                 ; essere sicuri di essere ben entrati nella linea successiva.
-  .Loop_Delay_1:
-    dex
-    bne .Loop_Delay_1
 
     bit SCROLY                  ; Se il contatore è ancora maggiore di 256 vuol dire che siamo ancora
     bmi .Check_Line_263         ; al fondo dello schermo, e l'identificazione non è ancora completa.
@@ -45,11 +52,7 @@
     bne .Exit                   ; di aver identificato la versione "Old NTSC".
 
   .Check_Line_263:
-    ldx #$13                    ; Facciamo passare altri 96 cicli e ripetiamo il test:
-
-  .Loop_Delay_2:
-    dex
-    bne .Loop_Delay_2
+    +Delay_5n1 ".X", 19         ; Facciamo passare altri 96 cicli e ripetiamo il test:
 
     bit SCROLY                  ; Se il contatore è ancora maggiore di 256 allora non ci sono dubbi:
     bmi .PAL                    ; il chip VIC-II è in versione "PAL",
@@ -129,9 +132,13 @@
 }
 
 !macro Raster_Grip {
-  bit+1 __VIC_MODEL             ; (+3) Testa il modello di chip VIC-II:
-  bvs *+2                       ; (+2) se il chip è una qualsiasi versione NTSC allora (+3),
-  bmi *+2                       ; (+2) se il chip è la versione "New NTSC" allora (+3).
+  bit+1 __VIC_MODEL             ; (+3) Testa il modello di chip VIC-II: i bit 6 e 7 del contenuto di __VIC_MODEL vengono copiati nei flag V e N.
+  bvs @Any_NTSC                 ; (+2) ma se il chip è una qualsiasi versione NTSC (V=1) allora (+3)
+  
+@Any_NTSC:  
+  bmi @New_NTSC                 ; (+2) ma se il chip è la versione "New NTSC" (N=1) allora (+3).
+
+@New_NTSC:
 }
 
 !macro Start_Unstable_IRQ .rasterline, .irq_handler {
