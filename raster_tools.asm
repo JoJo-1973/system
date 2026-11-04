@@ -4,19 +4,19 @@
 ; TARGET:         ACME Assembler / MOS 6510 (Commodore 64)
 ; DESCRIZIONE:    Macro di utilità per la definizione di interruzioni di raster
 ;                 concatenate, sia stabili che instabili. Non adatte per codici
-;                 iper-ottimizzati. Supportano tutte le versioni del chip
-;                 VIC-II, sia PAL che NTSC.
+;                 iper-ottimizzati. Supportano tutte le versioni del chip VIC-II,
+;                 sia PAL che NTSC.
 ; CONTENUTO:      m_Init_Raster_System  Prepara il sistema ai Raster IRQ
 ;                 m_Start_Raster_IRQ    Avvia una catena di Raster IRQ
-;                 m_Enter_Raster_IRQ    Entra in un gestore di Raster IRQ
+;                 m_Enter_Raster_IRQ    Entra in un gestore Raster IRQ
 ;                 m_Next_Raster_IRQ     Prepara il prossimo Raster IRQ, esce
 ;                 m_Set_Rasterline      Imposta la linea di raster di confronto
 ;                 m_Raster_Grip         Compensa i cicli extra del VIC-II NTSC
 ;                 m_Start_Unstable_IRQ  Avvia una catena di IRQ instabili
-;                 m_Enter_Unstable_IRQ  Entra in un gestore di IRQ instabile
+;                 m_Enter_Unstable_IRQ  Entra in un gestore IRQ instabile
 ;                 m_Next_Unstable_IRQ   Prepara il prossimo IRQ instabile, esce
 ;                 m_Start_Stable_IRQ    Avvia una catena di IRQ stabili
-;                 m_Enter_Stable_IRQ    Entra in un gestore di IRQ stabile
+;                 m_Enter_Stable_IRQ    Entra in un gestore IRQ stabile
 ;                 m_Next_Stable_IRQ     Prepara il prossimo IRQ stabile, esce
 ; DIPENDENZE:     Nessuna
 ; REQUISITI ZP:   __VIC_MODEL
@@ -33,8 +33,8 @@
 ;               La macro determina anche il tipo di chip VIC-II installato sul
 ;               computer sul quale sta girando: un codice identificativo viene
 ;               conservato nella locazione rappresentata dal punto di
-;               configurazione __VIC_MODEL. Il significato del codice è il
-;               seguente:
+;               configurazione __VIC_MODEL. Il significato del codice è
+;               il seguente:
 ;
 ;                 $00 = PAL       63 cicli per linea
 ;                 $40 = Old NTSC  64 cicli per linea
@@ -65,8 +65,8 @@
 !macro m_Init_Raster_System {
   !zone Init_Raster_System
 
-    ; Gira a vuoto finché il raster non ritorna nell'intervallo
-    ; 0-255.
+    ; Gira a vuoto finché il raster non ritorna
+    ; nell'intervallo 0-255.
     .Loop_Wait_Top:
       bit SCROLY                          ; REPEAT
 
@@ -102,21 +102,20 @@
                                           ; linea successiva.
 
       bit SCROLY                          ; Se il contatore è ancora maggiore di 256 vuol dire che siamo
-                                          ; ancora
-      bmi .Check_Line_263                 ; al fondo dello schermo, e l'identificazione non è ancora
-                                          ; completa.
+                                          ; ancora al fondo dello schermo, e l'identificazione non è
+      bmi .Check_Line_263                 ; ancora completa.
 
     .Old_NTSC:
       ldy #%01000000                      ; Altrimenti siamo ritornati all'inizio dello schermo e siamo
-                                          ; sicuri
-      bne .Exit_INIT_RASTER_SYSTEM        ; di aver identificato la versione "Old NTSC".
+                                          ; sicuri di aver identificato la versione "Old NTSC".
+      bne .Exit_INIT_RASTER_SYSTEM
 
     .Check_Line_263:
-      +m_Delay_5n1 ".X", 19               ; Facciamo passare altri 96 cicli e ripetiamo il test:
+      +m_Delay_5n1 ".X", 19               ; Facciamo passare altri 96 cicli e ripetiamo il test.
 
       bit SCROLY                          ; Se il contatore è ancora maggiore di 256 allora non ci sono
-                                          ; dubbi:
-      bmi .PAL                            ; il chip VIC-II è in versione "PAL",
+                                          ; dubbi: il chip VIC-II è in versione "PAL",
+      bmi .PAL
 
     .New_NTSC:
       ldy #%11000000                      ; altrimenti non può che essere in versione "New NTSC".
@@ -134,10 +133,10 @@
 
       lda #%01111111                      ; Disabilita tutte le sorgenti di interruzioni provenienti dai
                                           ; chip CIA.
-      sta CIAICR                          ; ATTENZIONE: disabilitare le interruzioni del CIA #1 implica
-                                          ; che
-      sta CI2ICR                          ; la scansione della tastiera diventi responsabilità del
-                                          ; programmatore!!!
+      sta CIAICR                          ; ATTENZIONE: disabilitare le interruzioni del CIA #1
+                                          ; implica che
+      sta CI2ICR                          ; la scansione della tastiera diventi responsabilità
+                                          ; del programmatore!!!
 
       lda CIAICR                          ; Neutralizza eventuali IRQ in sospeso richiesti da CIA #1.
       lda CI2ICR                          ; Neutralizza eventuali IRQ in sospeso richiesti da CIA #2.
@@ -188,9 +187,10 @@
 ; MACRO: m_Enter_Raster_IRQ
 ; ------------------------------------------------------------------------------
 ; Descrizione:  La macro va obbligatoriamente invocata come prima istruzione del
-;               gestore di interruzioni di raster. Questa macro si limita solo a
-;               richiamare le macro m_Enter_Stable_IRQ e m_Enter_Unstable_IRQ
-;               che si occupano dell'effettiva realizzazione.
+;               gestore delle interruzioni di raster. Questa macro si limita
+;               solo a richiamare le macro m_Enter_Stable_IRQ e
+;               m_Enter_Unstable_IRQ che si occupano
+;               dell'effettiva realizzazione.
 ;
 ; Input:
 ;   - .stable_ (stringa, Macro)    : "STABLE" = stabile, altro = instabile
@@ -221,7 +221,7 @@
 ; MACRO: m_Next_Raster_IRQ
 ; ------------------------------------------------------------------------------
 ; Descrizione:  La macro va obbligatoriamente invocata come ultima istruzione
-;               del gestore di interruzioni di raster. Questa macro si limita
+;               del gestore delle interruzioni di raster. Questa macro si limita
 ;               solo a richiamare le macro m_Next_Stable_IRQ e
 ;               m_Next_Unstable_IRQ che si occupano dell'effettiva
 ;               realizzazione. Affinché la catena di interruzioni di raster sia
@@ -426,8 +426,8 @@
 ;               IRQHND (se si desiderà un'uscita "slow" che scansioni la
 ;               tastiera, aggiorni i timer, eccetera). Se invece il Kernal è
 ;               disabilitato non vi sono alternative: l'uscita sarà sempre
-;               "fast" ed il ripristino sarà realizzato mediante apposito codice
-;               in-line.
+;               "fast" ed il ripristino sarà realizzato mediante apposito
+;               codice in-line.
 ;
 ; Input:
 ;   - .rasterline_ (2 byte, Macro)  : Linea di raster del prossimo IRQ
@@ -474,8 +474,8 @@
       rti
     } else {
       !if (.fast_exit_ = "FAST") {
-        jmp IRQMIN                        ; Se si richiede un'uscita veloce ripristina semplicemente i
-                                          ; registri
+        jmp IRQMIN                        ; Se si richiede un'uscita veloce ripristina semplicemente
+                                          ; i registri
       } else {
         jmp IRQHND                        ; altrimenti salta al gestore delle interruzioni standard.
       }
@@ -492,8 +492,8 @@
 ;               l'interruzione e ripristina il flag di Interrupt.
 ;               Per ottenere la stabilizzazione dell'interruzione di raster si
 ;               utilizza la tecnica del doppio interrupt: questa macro serve ad
-;               impostare con congruo anticipo (3 linee di raster) il primo dei
-;               due.
+;               impostare con congruo anticipo (3 linee di raster) il primo
+;               dei due.
 ;
 ;               IMPORTANTE: la macro presuppone che (.rasterline_-3) non
 ;               corrisponda ad una "badline". In caso contrario i calcoli di
@@ -560,8 +560,8 @@
 ;               Un'operazione di salto fittizia brucerà 2 oppure 3 cicli a
 ;               seconda del risultato della comparazione garantendo che
 ;               l'istruzione successiva venga eseguita con certezza al ciclo 3
-;               della linea di raster .rasterline_, stabilizzando così il
-;               raster!
+;               della linea di raster .rasterline_, stabilizzando così
+;               il raster!
 ;
 ;               IMPORTANTE: la macro presuppone che (.rasterline_-1) non
 ;               corrisponda ad una "badline". In caso contrario i calcoli di
@@ -588,13 +588,13 @@
 ;                       <system/standard.asm>
 ; ==============================================================================
 !macro m_Enter_Stable_IRQ .rasterline_ {
-    ; Il seguente gestore di interruzioni viene eseguito dopo che
-    ; sono passati 38-44 cicli (9-15 cicli se il Kernal è stato
-    ; disabilitato) dall'istante in cui il raster ha raggiunto la
-    ; terzultima linea prima di quella realmente desiderata: in
-    ; questo modo c'è tempo sufficiente per preparare il secondo
-    ; gestore, introdurre i cicli aggiuntivi in caso di versioni
-    ; NTSC del chip e gestire lo stack.
+    ; Il seguente gestore delle interruzioni viene eseguito dopo
+    ; che sono passati 38-44 cicli (9-15 cicli se il Kernal è
+    ; stato disabilitato) dall'istante in cui il raster ha
+    ; raggiunto la terzultima linea prima di quella realmente
+    ; desiderata: in questo modo c'è tempo sufficiente per
+    ; preparare il secondo gestore, introdurre i cicli aggiuntivi
+    ; in caso di versioni NTSC del chip e gestire lo stack.
     ;
     ; In ogni commento c'è l'intervallo di cicli nel quale è
     ; possibile avvenga l'esecuzione dell'istruzione, seguita
@@ -614,7 +614,7 @@
 
       asl VICIRQ                          ; 22-28 (+6)   Recepisci l'interruzione.
 
-      lda #<@Sync                         ; 28-34 (+2)   Imposta il gestore di interruzioni definito dall'utente.
+      lda #<@Sync                         ; 28-34 (+2)   Imposta il gestore delle interruzioni definito dall'utente.
       sta IRBVEC                          ; 30-36 (+4)
       lda #>@Sync                         ; 34-40 (+2)
       sta IRBVEC+1                        ; 36-42 (+4)
@@ -634,13 +634,13 @@
       +m_Delay_5n1 ".Y", 7                ; 14-20 (+36)  Gira a vuoto per un po'.
       nop                                 ; 50-56 (+2)
 
-      tsx                                 ; 52-58 (+2)   Salva il valore dello stack
+      tsx                                 ; 52-58 (+2)   Salva il valore dello stack.
       nop                                 ; 54-60 (+2)   Fino a questa istruzione è certo che non si è ancora giunti
                                           ;              alla linea immediatamente precedente a quella desiderata.
     } else {
       asl VICIRQ                          ; 38-44 (+6)   Recepisci l'interruzione.
 
-      lda #<@Sync                         ; 44-50 (+2)   Imposta il gestore di interruzioni definito dall'utente.
+      lda #<@Sync                         ; 44-50 (+2)   Imposta il gestore delle interruzioni definito dall'utente.
       sta CINV                            ; 46-52 (+4)
       lda #>@Sync                         ; 50-56 (+2)
       sta CINV+1                          ; 52-58 (+4)
@@ -656,7 +656,7 @@
       +m_Delay_5n1 ".Y", 5                ; 18-24 (+26)  Gira a vuoto per un po'.
 
       tsx                                 ; 44-50 (+2)   Salva il valore dello stack
-      stx @Restore_Stack+1                ; 46-52 (+4)   (!!!) con un po' di codice automodificante!
+      stx @Restore_Stack+1                ; 46-52 (+4)   (!!!#1) con un po' di codice automodificante!
       nop                                 ; 50-56 (+2)
       nop                                 ; 52-58 (+2)
       nop                                 ; 54-60 (+2)   Fino a questa istruzione è certo che non si è ancora giunti
@@ -667,13 +667,13 @@
     ; iniziare a disegnare la linea precedente a quella da noi
     ; desiderata: in tal caso scatta un'interruzione e il
     ; controllo arriva al gestore precedentemente impostato
-    ; (@Sync) con un'incertezza di un solo ciclo, cioè al ciclo
-    ; 38 o 39 se il Kernal è abilitato, al ciclo 09 o 10 se è
-    ; disabilitato.
+    ; (@Sync) con un'incertezza di un solo ciclo, cioè al ciclo 38
+    ; o 39 se il Kernal è abilitato, al ciclo 09 o 10 se
+    ; è disabilitato.
     ;
-    ; Un "nop" viene interrotto se e solo se inizia al ciclo 63
-    ; o 01: la finestra è ricavata dalla temporizzazione di
-    ; @Sync (cicli 09-10 con Kernal disabilitato, 38-39 con
+    ; Un "nop" viene interrotto se e solo se inizia al ciclo 63 o
+    ; 01: la finestra è ricavata dalla temporizzazione di @Sync
+    ; (cicli 09-10 con Kernal disabilitato, 38-39 con
     ; Kernal abilitato).
 
     nop                                   ; 56-62 (+2)   Non viene mai interrotta: inizia al più tardi al ciclo 62.
@@ -692,18 +692,17 @@
 
     @Restore_Stack:
       txs                                 ; 46-47 (+2)   Ripristina lo stack in modo che l'istruzione "rti" finale
-                                          ;              realizzi l'uscita da entrambi le interruzioni di
-                                          ;              stabilizzazione.
+                                          ;              realizzi l'uscita da entrambi le interruzioni
+                                          ;              di stabilizzazione.
   } else {
 
     @Sync:
       asl VICIRQ                          ; 38-39 (+6)   Recepisci l'interruzione.
 
     @Restore_Stack:
-      ldx #$00                            ; 44-45 (+2)   (!!!) Ripristina lo stack in modo che l'istruzione "rti"
-                                          ;              finale
-      txs                                 ; 46-47 (+2)   realizzi l'uscita da entrambi le interruzioni di
-                                          ;              stabilizzazione.
+      ldx #$00                            ; 44-45 (+2)   (!!!#1) Ripristina lo stack in modo che l'istruzione "rti" finale
+      txs                                 ; 46-47 (+2)   realizzi l'uscita da entrambi le interruzioni
+                                          ;              di stabilizzazione.
   }
 
     +m_Raster_Grip                        ; 48-49 (+7)   Testa il modello di chip VIC-II e consuma eventuali cicli
@@ -718,8 +717,8 @@
     beq *+2                               ; 63-01 (+3/2) Nel primo caso Z=1 e l'istruzione "beq" impiega 3 cicli, nel
                                           ;              secondo caso Z=0 e l'istruzione "beq" impiega 2 cicli. In
                                           ;              entrambi i casi la prossima istruzione verrà eseguita a
-                                          ;              partire dal ciclo 3 della linea impostata: RASTER
-                                          ;              STABILIZZATO!
+                                          ;              partire dal ciclo 3 della linea impostata:
+                                          ;              RASTER STABILIZZATO!
 }
 
 ; ==============================================================================
@@ -735,12 +734,12 @@
 ;               IRQHND (se si desiderà un'uscita "slow" che scansioni la
 ;               tastiera, aggiorni i timer, eccetera). Se invece il Kernal è
 ;               disabilitato non vi sono alternative: l'uscita sarà sempre
-;               "fast" ed il ripristino sarà realizzato mediante apposito codice
-;               in-line.
+;               "fast" ed il ripristino sarà realizzato mediante apposito
+;               codice in-line.
 ;               Siccome la macro presuppone che il prossimo anello della catena
 ;               sarà ancora un IRQ stabile, la prossima linea di raster sarà
-;               impostata a .rasterline_-3, coerentemente con quanto fatto da
-;               m_Start_Stable_IRQ.
+;               impostata a .rasterline_-3, coerentemente con quanto fatto
+;               da m_Start_Stable_IRQ.
 ;
 ; Input:
 ;   - .rasterline_ (2 byte, Macro)  : Linea di raster del prossimo IRQ
@@ -789,8 +788,8 @@
       rti
     } else {
       !if (.fast_exit_ = "FAST") {
-        jmp IRQMIN                        ; Se si richiede un'uscita veloce ripristina semplicemente i
-                                          ; registri
+        jmp IRQMIN                        ; Se si richiede un'uscita veloce ripristina semplicemente
+                                          ; i registri
       } else {
         jmp IRQHND                        ; altrimenti salta al gestore delle interruzioni standard.
       }

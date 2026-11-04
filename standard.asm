@@ -4,7 +4,6 @@
 ; TARGET:         ACME Assembler / MOS 6510 (Commodore 64)
 ; DESCRIZIONE:    Macro utili per la programmazione.
 ; CONTENUTO:      m_BASIC_Preamble  Inserisce una riga BASIC con SYS
-;                 m_Exit_To_BASIC   Esce al prompt del BASIC
 ;                 m_Swap8           Scambia due valori a 8 bit
 ;                 m_Push_AXY        Salva .A, .X e .Y sullo stack
 ;                 m_Pull_AXY        Recupera .A, .X e .Y dallo stack
@@ -44,32 +43,8 @@
       !basic .line_num_, .label_
     } else {
       !basic .line_num_, ":", $8F, " ", .comment_, .label_  ; Nel caso sia specificato il commento aggiungi ":REM " +
-                                                            ; .comment_ in coda: $8F è il token dell'istruzione "REM"
+                                                            ; .comment_ in coda: $8F è il token dell'istruzione "REM".
     }
-}
-
-; ==============================================================================
-; MACRO: m_Exit_To_BASIC
-; ------------------------------------------------------------------------------
-; Descrizione:  Termina un programma in linguaggio macchina e torna al prompt
-;               del BASIC, passando per il gestore degli errori.
-;
-; Input:
-;   - Nessuno
-;
-; Output:
-;   - .PC (2 byte, CPU) : Indirizzo contenuto nel vettore IERROR
-;
-; Variazione Stack (.S):
-;   - Stabile
-;
-; Registri Modificati:  .X, .P
-; Dipendenze Esterne:   <c64/errors.asm>
-;                       <c64/symbols.asm>
-; ==============================================================================
-!macro m_Exit_To_BASIC {
-    ldx #ERR_READY                                          ; Carica il codice d'errore corrispondente a "READY."
-    jmp (IERROR)                                            ; e ritorna al BASIC in maniera pulita
 }
 
 ; ==============================================================================
@@ -93,7 +68,7 @@
 ; ==============================================================================
 !macro m_Swap8 .addr1_, .addr2_ {
     ldx .addr1_                                             ; Semplicemente carica .X e .Y con i contenuti da scambiare
-    ldy .addr2_                                             ; e riscrivili in ordine inverso
+    ldy .addr2_                                             ; e riscrivili in ordine inverso.
     stx .addr2_
     sty .addr1_
 }
@@ -121,7 +96,7 @@
     txa                                                     ; poi .X
     pha
 
-    tya                                                     ; e per ultimo .Y
+    tya                                                     ; e per ultimo .Y.
     pha
 }
 
@@ -149,7 +124,7 @@
     pla                                                     ; poi .X
     tax
 
-    pla                                                     ; e per ultimo .A
+    pla                                                     ; e per ultimo .A.
 }
 
 ; ==============================================================================
@@ -174,10 +149,10 @@
     pha                                                     ; Riserva una posizione sullo stack: servirà a m_Pull_XY.
                                                             ; Il contenuto di questa posizione è irrilevante.
 
-    txa                                                     ; poi salva .X
+    txa                                                     ; Poi salva .X
     pha
 
-    tya                                                     ; e per ultimo .Y
+    tya                                                     ; e per ultimo .Y.
     pha
 }
 
@@ -203,15 +178,15 @@
     inx                                                     ; ora .X punta alla posizione riservata da m_Push_XY
     inx                                                     ; e che non contiene dati utili:
     inx                                                     ; poiché .A verrà alterato dalle istruzioni che seguono
-    sta STACK,x                                             ; usala per per memorizzare il valore originario di .A
+    sta STACK,x                                             ; usala per memorizzare il valore originario di .A.
 
-    pla                                                     ; Recupera .Y
+    pla                                                     ; Recupera .Y.
     tay
 
-    pla                                                     ; Recupera .X
+    pla                                                     ; Recupera .X.
     tax
 
-    pla                                                     ; Ripristina .A
+    pla                                                     ; Ripristina .A.
 }
 
 ; ==============================================================================
@@ -233,12 +208,12 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_SeV {
-    php                                                     ; Copia .P in .A
+    php                                                     ; Copia .P in .A.
     pla
 
-    ora #%01000000                                          ; Setta il bit #6
+    ora #%01000000                                          ; Setta il bit #6.
 
-    pha                                                     ; Copia .A in .P
+    pha                                                     ; Copia .A in .P.
     plp
 }
 
@@ -261,12 +236,12 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_CCf {
-    php                                                     ; Copia .P in .A
+    php                                                     ; Copia .P in .A.
     pla
 
-    eor #%00000001                                          ; Inverti il bit #0
+    eor #%00000001                                          ; Inverti il bit #0.
 
-    pha                                                     ; Copia .A in .P
+    pha                                                     ; Copia .A in .P.
     plp
 }
 
@@ -276,8 +251,8 @@
 ; Descrizione:  Inserisce l'istruzione illegale NOP #imm (2 cicli) in modo da
 ;               mascherare l'istruzione da un byte che segue, senza alterare i
 ;               flag. Il byte emesso è l'opcode di NOP: il primo byte
-;               dell'istruzione seguente ne diventa l'operando e non viene
-;               eseguito.
+;               dell'istruzione seguente ne diventa l'operando e non
+;               viene eseguito.
 ;
 ; Input:
 ;   - Nessuno
@@ -293,7 +268,7 @@
 ; ==============================================================================
 !macro m_Skip1 {
     !byte $80                                               ; L'esecuzione di questa istruzione maschera l'opcode da un
-                                                            ; byte che segue senza alterare i flag
+                                                            ; byte che segue senza alterare i flag.
 }
 
 ; ==============================================================================
@@ -302,8 +277,8 @@
 ; Descrizione:  Inserisce l'istruzione illegale NOP abs (4 cicli) in modo da
 ;               mascherare l'istruzione da due byte che segue, senza alterare i
 ;               flag. Il byte emesso è l'opcode di NOP: i due byte
-;               dell'istruzione seguente ne diventano l'operando e non vengono
-;               eseguiti.
+;               dell'istruzione seguente ne diventano l'operando e non
+;               vengono eseguiti.
 ;
 ; Input:
 ;   - Nessuno
@@ -319,7 +294,7 @@
 ; ==============================================================================
 !macro m_Skip2 {
     !byte $0C                                               ; L'esecuzione di questa istruzione maschera l'opcode da due
-                                                            ; byte che segue senza alterare i flag
+                                                            ; byte che segue senza alterare i flag.
 }
 
 ; ==============================================================================

@@ -65,8 +65,8 @@
 ; MACRO: m_Disable_Kernal
 ; ------------------------------------------------------------------------------
 ; Descrizione:  Disabilita la ROM del Kernal, rendendo visibile il banco di
-;               memoria HIRAM ($E000-$FFFF). ATTENZIONE: gli interrupt saranno
-;               disabilitati.
+;               memoria HIRAM ($E000-$FFFF). ATTENZIONE: gli interrupt
+;               saranno disabilitati.
 ;
 ; Input:
 ;   - Nessuno
@@ -92,8 +92,8 @@
 ; MACRO: m_Enable_Kernal
 ; ------------------------------------------------------------------------------
 ; Descrizione:  Riabilita la ROM del Kernal, rendendo invisibile il banco di
-;               memoria HIRAM ($E000-$FFFF). ATTENZIONE: gli interrupt saranno
-;               riabilitati.
+;               memoria HIRAM ($E000-$FFFF). ATTENZIONE: gli interrupt
+;               saranno riabilitati.
 ;
 ; Input:
 ;   - Nessuno
@@ -119,8 +119,8 @@
 ; MACRO: m_Disable_IO
 ; ------------------------------------------------------------------------------
 ; Descrizione:  Disabilita le interruzioni del timer di sistema e gli indirizzi
-;               di I/O, rendendo visibile il banco di memoria CHARGEN
-;               ($D000-$DFFF).
+;               di I/O, rendendo visibile il banco di memoria
+;               CHARGEN ($D000-$DFFF).
 ;
 ; Input:
 ;   - Nessuno
@@ -148,8 +148,8 @@
 ; MACRO: m_Enable_IO
 ; ------------------------------------------------------------------------------
 ; Descrizione:  Riabilita gli indirizzi di I/O, rendendo invisibile il banco di
-;               memoria CHARGEN ($D000-$DFFF), e le interruzioni del timer di
-;               sistema.
+;               memoria CHARGEN ($D000-$DFFF), e le interruzioni del timer
+;               di sistema.
 ;
 ; Input:
 ;   - Nessuno
