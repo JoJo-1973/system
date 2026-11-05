@@ -50,8 +50,8 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .Y, .P, INDEX2, EXTCOL, BGCOL0, BGCOL1, BGCOL2,
-;                       BGCOL3, COLOR
+; Registri Modificati:  .A, .Y, .P (Negative, Zero), INDEX2, EXTCOL, BGCOL0,
+;                       BGCOL1, BGCOL2, BGCOL3, COLOR
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ;                       <chip/vic_ii.asm>
 ; ==============================================================================
@@ -119,7 +119,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P, C2DDRA, CI2PRA
+; Registri Modificati:  .A, .P (Negative, Zero, Carry), C2DDRA, CI2PRA
 ; Dipendenze Esterne:   <chip/cia.asm>
 ;                       <system/branch.asm>
 ; ==============================================================================
@@ -188,7 +188,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P, HIBASE, VMCSB
+; Registri Modificati:  .A, .P (Negative, Zero, Carry), HIBASE, VMCSB
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ;                       <chip/vic_ii.asm>
 ;                       <system/branch.asm>
@@ -257,7 +257,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P, VMCSB
+; Registri Modificati:  .A, .P (Negative, Zero, Carry), VMCSB
 ; Dipendenze Esterne:   <chip/vic_ii.asm>
 ;                       <system/branch.asm>
 ; ==============================================================================
@@ -322,7 +322,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P, VMCSB
+; Registri Modificati:  .A, .P (Negative, Zero, Carry), VMCSB
 ; Dipendenze Esterne:   <chip/vic_ii.asm>
 ;                       <system/branch.asm>
 ; ==============================================================================
@@ -379,7 +379,8 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .X, .Y, .P, INDEX, INDEX2, R6510, CIAICR
+; Registri Modificati:  .A, .X, .Y, .P (Negative, Zero, Carry), INDEX, INDEX2,
+;                       R6510, CIAICR
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ;                       <system/6510_tools.asm>
 ; ==============================================================================
@@ -442,7 +443,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P, SCROLY
+; Registri Modificati:  .A, .P (Negative, Zero), SCROLY
 ; Dipendenze Esterne:   <chip/vic_ii.asm>
 ; ==============================================================================
 !macro m_VIC_Bitmap_On {
@@ -466,7 +467,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P, SCROLY
+; Registri Modificati:  .A, .P (Negative, Zero), SCROLY
 ; Dipendenze Esterne:   <chip/vic_ii.asm>
 ; ==============================================================================
 !macro m_VIC_Bitmap_Off {
@@ -490,7 +491,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P, SCROLY
+; Registri Modificati:  .A, .P (Negative, Zero), SCROLY
 ; Dipendenze Esterne:   <chip/vic_ii.asm>
 ; ==============================================================================
 !macro m_VIC_Ext_Color_On {
@@ -514,7 +515,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P, SCROLY
+; Registri Modificati:  .A, .P (Negative, Zero), SCROLY
 ; Dipendenze Esterne:   <chip/vic_ii.asm>
 ; ==============================================================================
 !macro m_VIC_Ext_Color_Off {
@@ -538,7 +539,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P, SCROLX
+; Registri Modificati:  .A, .P (Negative, Zero), SCROLX
 ; Dipendenze Esterne:   <chip/vic_ii.asm>
 ; ==============================================================================
 !macro m_VIC_Multicolor_On {
@@ -562,7 +563,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P, SCROLX
+; Registri Modificati:  .A, .P (Negative, Zero), SCROLX
 ; Dipendenze Esterne:   <chip/vic_ii.asm>
 ; ==============================================================================
 !macro m_VIC_Multicolor_Off {
@@ -594,7 +595,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P, INDEX2
+; Registri Modificati:  .A, .P (Negative, oVerflow, Zero, Carry), INDEX2
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ; ==============================================================================
 !if (__USE_COMPUTE_CELL_ADDRESS = 1) {
@@ -652,7 +653,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .Y, .P, INDEX2
+; Registri Modificati:  .A, .Y, .P (Negative, oVerflow, Zero, Carry), INDEX2
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ; ==============================================================================
 !if (__USE_GET_SCREEN_CELL = 1) {
@@ -689,7 +690,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .Y, .P, INDEX2
+; Registri Modificati:  .A, .Y, .P (Negative, oVerflow, Zero, Carry), INDEX2
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ; ==============================================================================
 !if (__USE_GET_COLOR_CELL = 1) {

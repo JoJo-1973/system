@@ -63,7 +63,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .X, .Y, .P
+; Registri Modificati:  .X, .Y, .P (Negative, Zero)
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_Swap8 .addr1_, .addr2_ {
@@ -87,7 +87,7 @@
 ; Variazione Stack (.S):
 ;   - Decrementato di 3 byte
 ;
-; Registri Modificati:  .A, .P
+; Registri Modificati:  .A, .P (Negative, Zero)
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_Push_AXY {
@@ -114,7 +114,7 @@
 ; Variazione Stack (.S):
 ;   - Incrementato di 3 byte
 ;
-; Registri Modificati:  .A, .X, .Y, .P
+; Registri Modificati:  .A, .X, .Y, .P (Negative, Zero)
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_Pull_AXY {
@@ -142,7 +142,7 @@
 ; Variazione Stack (.S):
 ;   - Decrementato di 3 byte
 ;
-; Registri Modificati:  .A, .P
+; Registri Modificati:  .A, .P (Negative, Zero)
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_Push_XY {
@@ -170,7 +170,7 @@
 ; Variazione Stack (.S):
 ;   - Incrementato di 3 byte
 ;
-; Registri Modificati:  .X, .Y, .P
+; Registri Modificati:  .X, .Y, .P (Negative, Zero)
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ; ==============================================================================
 !macro m_Pull_XY {
@@ -313,7 +313,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .reg_ (.X o .Y), .P
+; Registri Modificati:  .reg_ (.X o .Y), .P (Negative, Zero)
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_Delay_5n1 .reg_, .n_ {

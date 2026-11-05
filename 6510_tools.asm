@@ -28,7 +28,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P, R6510
+; Registri Modificati:  .A, .P (Negative, Zero), R6510
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ; ==============================================================================
 !macro m_Disable_BASIC {
@@ -52,7 +52,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P, R6510
+; Registri Modificati:  .A, .P (Negative, Zero), R6510
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ; ==============================================================================
 !macro m_Enable_BASIC {
@@ -77,7 +77,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P (Interrupt), R6510
+; Registri Modificati:  .A, .P (Negative, Interrupt, Zero), R6510
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ; ==============================================================================
 !macro m_Disable_Kernal {
@@ -104,7 +104,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P (Interrupt), R6510
+; Registri Modificati:  .A, .P (Negative, Interrupt, Zero), R6510
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ; ==============================================================================
 !macro m_Enable_Kernal {
@@ -131,7 +131,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P, R6510, CIAICR
+; Registri Modificati:  .A, .P (Negative, Zero), R6510, CIAICR
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ;                       <chip/cia.asm>
 ; ==============================================================================
@@ -160,7 +160,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P, R6510, CIAICR
+; Registri Modificati:  .A, .P (Negative, Zero), R6510, CIAICR
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ;                       <chip/cia.asm>
 ; ==============================================================================

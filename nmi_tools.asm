@@ -26,7 +26,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P, NMIVEC
+; Registri Modificati:  .A, .P (Negative, Zero), NMIVEC
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ; ==============================================================================
 !if (__USE_NMI_HIBASE = 1) {
@@ -109,7 +109,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P, NMIVEC
+; Registri Modificati:  .A, .P (Negative, Zero), NMIVEC
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ; ==============================================================================
 !if (__USE_NMI_RESTORE = 1) {

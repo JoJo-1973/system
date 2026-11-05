@@ -26,7 +26,7 @@
 ; Variazione Stack (.S):
 ;   - Azzerato
 ;
-; Registri Modificati:  .X, .P, .S
+; Registri Modificati:  .X, .P (Negative, Zero), .S
 ; Dipendenze Esterne:   <c64/errors.asm>
 ;                       <c64/symbols.asm>
 ; ==============================================================================
@@ -57,8 +57,8 @@
 ; Variazione Stack (.S):
 ;   - Azzerato
 ;
-; Registri Modificati:  .A, .X, .Y, .P, .S, TXTTAB, VARTAB,
-;                       ARYTAB, STREND, FRETOP, TXTPTR
+; Registri Modificati:  .A, .X, .Y, .P (Negative, oVerflow, Zero, Carry), .S,
+;                       TXTTAB, VARTAB, ARYTAB, STREND, FRETOP, TXTPTR
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ; ==============================================================================
 !if (__USE_LOMEM = 1) {
@@ -106,8 +106,8 @@
 ; Variazione Stack (.S):
 ;   - Azzerato
 ;
-; Registri Modificati:  .A, .X, .Y, .P, .S, MEMSIZ, FRETOP,
-;                       ARYTAB, STREND
+; Registri Modificati:  .A, .X, .Y, .P (Negative, oVerflow, Zero, Carry), .S,
+;                       MEMSIZ, FRETOP, ARYTAB, STREND
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ; ==============================================================================
 !if (__USE_HIMEM = 1) {

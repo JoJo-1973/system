@@ -54,8 +54,10 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .X, .Y, .P (Interrupt), __VIC_MODEL, CIAICR,
-;                       CI2ICR, VICIRQ, IRQMSK, R6510 (se __DISABLE_KERNAL = 1)
+; Registri Modificati:  .A, .X, .Y,
+;                       .P (Negative, oVerflow, Interrupt, Zero, Carry),
+;                       __VIC_MODEL, CIAICR, CI2ICR, VICIRQ, IRQMSK,
+;                       R6510 (se __DISABLE_KERNAL = 1)
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ;                       <chip/cia.asm>
 ;                       <chip/vic_ii.asm>
@@ -169,7 +171,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P (Interrupt), RASTER, SCROLY,
+; Registri Modificati:  .A, .P (Negative, Interrupt, Zero), RASTER, SCROLY,
 ;                       IRBVEC (se __DISABLE_KERNAL = 1),
 ;                       CINV (se __DISABLE_KERNAL = 0)
 ; Dipendenze Esterne:   <c64/symbols.asm>
@@ -202,8 +204,9 @@
 ; Variazione Stack (.S):
 ;   - Decrementato di 3 byte
 ;
-; Registri Modificati:  .A, .X, .Y, .P (Interrupt), RASTER, SCROLY, VICIRQ,
-;                       IRBVEC (se __DISABLE_KERNAL = 1),
+; Registri Modificati:  .A, .X, .Y,
+;                       .P (Negative, oVerflow, Interrupt, Zero, Carry), RASTER,
+;                       SCROLY, VICIRQ, IRBVEC (se __DISABLE_KERNAL = 1),
 ;                       CINV (se __DISABLE_KERNAL = 0)
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ;                       <chip/vic_ii.asm>
@@ -242,7 +245,7 @@
 ; Variazione Stack (.S):
 ;   - Incrementato di 6 byte
 ;
-; Registri Modificati:  .A, .P (Interrupt), RASTER, SCROLY,
+; Registri Modificati:  .A, .P (Negative, Interrupt, Zero), RASTER, SCROLY,
 ;                       IRBVEC (se __DISABLE_KERNAL = 1),
 ;                       CINV (se __DISABLE_KERNAL = 0)
 ; Dipendenze Esterne:   <c64/symbols.asm>
@@ -272,7 +275,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P, RASTER, SCROLY
+; Registri Modificati:  .A, .P (Negative, Zero), RASTER, SCROLY
 ; Dipendenze Esterne:   <chip/vic_ii.asm>
 ; ==============================================================================
 !macro m_Set_Rasterline .rasterline_ {
@@ -318,7 +321,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .P
+; Registri Modificati:  .P (Negative, oVerflow, Zero)
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_Raster_Grip {
@@ -353,7 +356,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P (Interrupt), RASTER, SCROLY,
+; Registri Modificati:  .A, .P (Negative, Interrupt, Zero), RASTER, SCROLY,
 ;                       IRBVEC (se __DISABLE_KERNAL = 1),
 ;                       CINV (se __DISABLE_KERNAL = 0)
 ; Dipendenze Esterne:   <c64/symbols.asm>
@@ -396,7 +399,8 @@
 ; Variazione Stack (.S):
 ;   - Decrementato di 3 byte
 ;
-; Registri Modificati:  .A (se __DISABLE_KERNAL = 1), .P, VICIRQ
+; Registri Modificati:  .A (se __DISABLE_KERNAL = 1),
+;                       .P (Negative, Zero, Carry), VICIRQ
 ; Dipendenze Esterne:   <chip/vic_ii.asm>
 ; ==============================================================================
 !macro m_Enter_Unstable_IRQ {
@@ -440,7 +444,7 @@
 ; Variazione Stack (.S):
 ;   - Incrementato di 6 byte
 ;
-; Registri Modificati:  .A, .P (Interrupt), RASTER, SCROLY,
+; Registri Modificati:  .A, .P (Negative, Interrupt, Zero), RASTER, SCROLY,
 ;                       IRBVEC (se __DISABLE_KERNAL = 1),
 ;                       CINV (se __DISABLE_KERNAL = 0)
 ; Dipendenze Esterne:   <c64/symbols.asm>
@@ -510,7 +514,7 @@
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
-; Registri Modificati:  .A, .P (Interrupt), RASTER, SCROLY,
+; Registri Modificati:  .A, .P (Negative, Interrupt, Zero), RASTER, SCROLY,
 ;                       IRBVEC (se __DISABLE_KERNAL = 1),
 ;                       CINV (se __DISABLE_KERNAL = 0)
 ; Dipendenze Esterne:   <c64/symbols.asm>
@@ -580,8 +584,9 @@
 ; Variazione Stack (.S):
 ;   - Decrementato di 3 byte
 ;
-; Registri Modificati:  .A, .X, .Y, .P (Interrupt), RASTER, SCROLY, VICIRQ,
-;                       IRBVEC (se __DISABLE_KERNAL = 1),
+; Registri Modificati:  .A, .X, .Y,
+;                       .P (Negative, oVerflow, Interrupt, Zero, Carry), RASTER,
+;                       SCROLY, VICIRQ, IRBVEC (se __DISABLE_KERNAL = 1),
 ;                       CINV (se __DISABLE_KERNAL = 0)
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ;                       <chip/vic_ii.asm>
@@ -752,7 +757,7 @@
 ; Variazione Stack (.S):
 ;   - Incrementato di 6 byte
 ;
-; Registri Modificati:  .A, .P (Interrupt), RASTER, SCROLY,
+; Registri Modificati:  .A, .P (Negative, Interrupt, Zero), RASTER, SCROLY,
 ;                       IRBVEC (se __DISABLE_KERNAL = 1),
 ;                       CINV (se __DISABLE_KERNAL = 0)
 ; Dipendenze Esterne:   <c64/symbols.asm>
