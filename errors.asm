@@ -1,6 +1,6 @@
 ; ==============================================================================
 ; FILE:           errors.asm
-; PROGETTO:       Libreria C64 (c64.c64)
+; PROGETTO:       Libreria di Sistema (c64.c64)
 ; TARGET:         ACME Assembler / MOS 6510 (Commodore 64)
 ; DESCRIZIONE:    Codici dei messaggi d'errore del BASIC 2.0.
 ; ==============================================================================
