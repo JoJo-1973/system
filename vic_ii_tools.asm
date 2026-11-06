@@ -159,7 +159,8 @@
     .Exit_VIC_BANK:
       rts
 
-      ._MASK            !byte 0
+    ._MASK:
+      !byte 0
 
   !zone
 }
@@ -226,7 +227,8 @@
     .Exit_VIC_SCREEN:
       rts
 
-      ._MASK !byte 0
+    ._MASK:
+      !byte 0
 
   !zone
 }
@@ -293,7 +295,8 @@
     .Exit_VIC_CHARGEN:
       rts
 
-      ._MASK            !byte 0
+    ._MASK:
+      !byte 0
 
   !zone
 }
@@ -357,7 +360,8 @@
     .Exit_VIC_BITMAP:
       rts
 
-      ._MASK            !byte 0
+    ._MASK:
+      !byte 0
 
   !zone
 }
