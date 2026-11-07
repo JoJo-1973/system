@@ -22,6 +22,22 @@
 ; REQUISITI ZP:   __VIC_MODEL
 ; ==============================================================================
 
+; ****************************************************************
+; * TO-DO: Documentare un esempio di uso delle macro.            *
+; *                                                              *
+; * Cosa manca: la cornice del file e i contratti descrivono le  *
+; * singole macro, ma nessun punto mostra come si usano insieme. *
+; *                                                              *
+; * Da scrivere: un esempio completo e commentato che prepari il *
+; * sistema con m_Init_Raster_System, avvii una catena di Raster *
+; * IRQ con m_Start_Raster_IRQ e la percorra con                 *
+; * m_Enter_Raster_IRQ e m_Next_Raster_IRQ, nelle versioni       *
+; * instabile e stabile.                                         *
+; *                                                              *
+; * Dove: nelle note d'uso del file (HDR-17). A lavoro finito il *
+; * riquadro si toglie.                                          *
+; ****************************************************************
+
 ; ==============================================================================
 ; MACRO: m_Init_Raster_System
 ; ------------------------------------------------------------------------------
