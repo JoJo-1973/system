@@ -70,11 +70,11 @@
       lda #$00                  ; Scrivi $00 nella locazione puntata.
       sta ($00,x)
       inc $00,x                 ; Incrementa il puntatore di 1
-      bne .Store_Pointer
+      bne .No_Carry_Pointer
 
       inc $01,x
 
-    .Store_Pointer:
+    .No_Carry_Pointer:
       lda $00,x                 ; e scrivilo in TXTTAB.
       sta TXTTAB
       lda $01,x

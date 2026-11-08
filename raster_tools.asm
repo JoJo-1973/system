@@ -121,25 +121,25 @@
 
       bit SCROLY                          ; Se il contatore è ancora maggiore di 256 vuol dire che siamo
                                           ; ancora al fondo dello schermo, e l'identificazione non è
-      bmi .Check_Line_263                 ; ancora completa.
+      bmi .Else_If_Line_263               ; ancora completa.
 
     .Old_NTSC:
       ldy #%01000000                      ; Altrimenti siamo ritornati all'inizio dello schermo e siamo
                                           ; sicuri di aver identificato la versione "Old NTSC".
       bne .Exit_INIT_RASTER_SYSTEM
 
-    .Check_Line_263:
+    .Else_If_Line_263:
       +m_Delay_5n1 ".X", 19               ; Facciamo passare altri 96 cicli e ripetiamo il test.
 
       bit SCROLY                          ; Se il contatore è ancora maggiore di 256 allora non ci sono
                                           ; dubbi: il chip VIC-II è in versione "PAL",
-      bmi .PAL
+      bmi .Else_PAL
 
     .New_NTSC:
       ldy #%11000000                      ; altrimenti non può che essere in versione "New NTSC".
       bne .Exit_INIT_RASTER_SYSTEM
 
-    .PAL:
+    .Else_PAL:
       ldy #%00000000
 
     .Exit_INIT_RASTER_SYSTEM:
@@ -280,7 +280,7 @@
 ; ------------------------------------------------------------------------------
 ; Descrizione:  Macro di supporto per il settaggio del registro RASTER del chip
 ;               VIC-II. La macro viene eseguita in tempo costante (16 cicli) e
-;               gestisce correttamente il settaggio del bit 9.
+;               gestisce correttamente il settaggio del bit #9.
 ;
 ; Input:
 ;   - .rasterline_ (2 byte, Macro) : Linea di raster (9 bit, costante)
@@ -341,7 +341,7 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_Raster_Grip {
-    bit+1 __VIC_MODEL                     ; 01-01 (+3)   Testa il modello di chip VIC-II: i bit 6 e 7 del contenuto
+    bit+1 __VIC_MODEL                     ; 01-01 (+3)   Testa il modello di chip VIC-II: i bit #6 e #7 del contenuto
                                           ;              di __VIC_MODEL vengono copiati nei flag V e N.
     bvs @Any_NTSC                         ; 04-04 (+3/2) Se il chip è una qualsiasi versione NTSC (V=1) il salto
                                           ;              impiega 3 cicli, altrimenti 2.
