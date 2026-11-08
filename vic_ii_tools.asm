@@ -2,20 +2,20 @@
 ; FILE:           vic_ii_tools.asm
 ; PROGETTO:       Libreria di Sistema (system.c64)
 ; TARGET:         ACME Assembler / MOS 6510 (Commodore 64)
-; DESCRIZIONE:    Utilità per la gestione dei modi grafici offerti dal chip
-;                 VIC- II.
-; CONTENUTO:      VIC_PALETTE           Imposta i registri colore del VIC-II
-;                 VIC_BANK              Seleziona il banco di memoria del VIC-II
-;                 VIC_SCREEN            Posiziona la memoria schermo
-;                 VIC_CHARGEN           Posiziona il generatore di caratteri
-;                 VIC_BITMAP            Posiziona la memoria ad alta risoluzione
-;                 VIC_COPY_CHARGEN      Sposta il generatore di caratteri in RAM
-;                 m_VIC_Bitmap_On       Abilita il modo bitmap
+; DESCRIZIONE:    Utilità per la gestione dei modi grafici offerti dal
+;                 chip VIC-II.
+; CONTENUTO:      m_VIC_Bitmap_On       Abilita il modo bitmap
 ;                 m_VIC_Bitmap_Off      Disabilita il modo bitmap
 ;                 m_VIC_Ext_Color_On    Abilita il modo ECM
 ;                 m_VIC_Ext_Color_Off   Disabilita il modo ECM
 ;                 m_VIC_Multicolor_On   Abilita il modo multicolore
 ;                 m_VIC_Multicolor_Off  Disabilita il modo multicolore
+;                 VIC_PALETTE           Imposta i registri colore del VIC-II
+;                 VIC_BANK              Seleziona il banco di memoria del VIC-II
+;                 VIC_SCREEN            Posiziona la memoria schermo
+;                 VIC_CHARGEN           Posiziona il generatore di caratteri
+;                 VIC_BITMAP            Posiziona la memoria ad alta risoluzione
+;                 VIC_COPY_CHARGEN      Sposta il generatore di caratteri in RAM
 ;                 COMPUTE_CELL_ADDRESS  Calcola l'indirizzo di una cella video
 ;                 GET_SCREEN_CELL       Legge una cella della memoria schermo
 ;                 GET_COLOR_CELL        Legge una cella della memoria colore
@@ -24,20 +24,164 @@
 ; ==============================================================================
 
 ; ==============================================================================
+; MACRO: m_VIC_Bitmap_On
+; ------------------------------------------------------------------------------
+; Descrizione:  Abilita la modalità grafica bitmap impostando il bit #5
+;               di SCROLY.
+;
+; Input:
+;   - Nessuno
+;
+; Output:
+;   - SCROLY (1 byte, I/O) : Bit #5 a 1
+;
+; Variazione Stack (.S):
+;   - Stabile
+;
+; Registri Modificati:  .A, .P (Negative, Zero), SCROLY
+; Dipendenze Esterne:   <chip/vic_ii.asm>
+; ==============================================================================
+!macro m_VIC_Bitmap_On {
+    lda SCROLY
+    ora #%00100000                  ; Setta il bit #5.
+    sta SCROLY
+}
+
+; ==============================================================================
+; MACRO: m_VIC_Bitmap_Off
+; ------------------------------------------------------------------------------
+; Descrizione:  Disabilita la modalità grafica bitmap azzerando il bit #5
+;               di SCROLY.
+;
+; Input:
+;   - Nessuno
+;
+; Output:
+;   - SCROLY (1 byte, I/O) : Bit #5 a 0
+;
+; Variazione Stack (.S):
+;   - Stabile
+;
+; Registri Modificati:  .A, .P (Negative, Zero), SCROLY
+; Dipendenze Esterne:   <chip/vic_ii.asm>
+; ==============================================================================
+!macro m_VIC_Bitmap_Off {
+    lda SCROLY
+    and #%11011111                  ; Resetta il bit #5.
+    sta SCROLY
+}
+
+; ==============================================================================
+; MACRO: m_VIC_Ext_Color_On
+; ------------------------------------------------------------------------------
+; Descrizione:  Abilita il modo Colore di Sfondo Esteso (ECM) impostando il
+;               bit #6 di SCROLY.
+;
+; Input:
+;   - Nessuno
+;
+; Output:
+;   - SCROLY (1 byte, I/O) : Bit #6 a 1
+;
+; Variazione Stack (.S):
+;   - Stabile
+;
+; Registri Modificati:  .A, .P (Negative, Zero), SCROLY
+; Dipendenze Esterne:   <chip/vic_ii.asm>
+; ==============================================================================
+!macro m_VIC_Ext_Color_On {
+    lda SCROLY
+    ora #%01000000                  ; Setta il bit #6.
+    sta SCROLY
+}
+
+; ==============================================================================
+; MACRO: m_VIC_Ext_Color_Off
+; ------------------------------------------------------------------------------
+; Descrizione:  Disabilita il modo Colore di Sfondo Esteso (ECM) azzerando il
+;               bit #6 di SCROLY.
+;
+; Input:
+;   - Nessuno
+;
+; Output:
+;   - SCROLY (1 byte, I/O) : Bit #6 a 0
+;
+; Variazione Stack (.S):
+;   - Stabile
+;
+; Registri Modificati:  .A, .P (Negative, Zero), SCROLY
+; Dipendenze Esterne:   <chip/vic_ii.asm>
+; ==============================================================================
+!macro m_VIC_Ext_Color_Off {
+    lda SCROLY
+    and #%10111111                  ; Resetta il bit #6.
+    sta SCROLY
+}
+
+; ==============================================================================
+; MACRO: m_VIC_Multicolor_On
+; ------------------------------------------------------------------------------
+; Descrizione:  Abilita la modalità grafica multicolore impostando il bit #4
+;               di SCROLX.
+;
+; Input:
+;   - Nessuno
+;
+; Output:
+;   - SCROLX (1 byte, I/O) : Bit #4 a 1
+;
+; Variazione Stack (.S):
+;   - Stabile
+;
+; Registri Modificati:  .A, .P (Negative, Zero), SCROLX
+; Dipendenze Esterne:   <chip/vic_ii.asm>
+; ==============================================================================
+!macro m_VIC_Multicolor_On {
+    lda SCROLX
+    ora #%00010000                  ; Setta il bit #4.
+    sta SCROLX
+}
+
+; ==============================================================================
+; MACRO: m_VIC_Multicolor_Off
+; ------------------------------------------------------------------------------
+; Descrizione:  Disabilita la modalità grafica multicolore azzerando il bit #4
+;               di SCROLX.
+;
+; Input:
+;   - Nessuno
+;
+; Output:
+;   - SCROLX (1 byte, I/O) : Bit #4 a 0
+;
+; Variazione Stack (.S):
+;   - Stabile
+;
+; Registri Modificati:  .A, .P (Negative, Zero), SCROLX
+; Dipendenze Esterne:   <chip/vic_ii.asm>
+; ==============================================================================
+!macro m_VIC_Multicolor_Off {
+    lda SCROLX
+    and #%11101111                  ; Resetta il bit #4.
+    sta SCROLX
+}
+
+; ==============================================================================
 ; SUBROUTINE: VIC_PALETTE
 ; ------------------------------------------------------------------------------
-; Descrizione:  Imposta i colori di bordo, sfondo, carattere e
-;               multicolore/colore esteso in un'unica operazione. L'indirizzo in
-;               .XA punta ad un blocco di memoria che contiene in successione i
-;               valori da assegnare ai registri EXTCOL, BGCOL0, BGCOL1, BGCOL2,
-;               BGCOL3 e COLOR. Se il valore è VIC_TRANSPARENT il registro
-;               resta immutato.
+; Descrizione:  Imposta i colori di bordo, sfondo, carattere, multicolore/colore
+;               esteso e multicolore/sprite in un'unica operazione. L'indirizzo
+;               in .XA punta ad un blocco di memoria che contiene in successione
+;               i valori da assegnare ai registri EXTCOL, BGCOL0, BGCOL1,
+;               BGCOL2, BGCOL3, SPMC0, SPMC1 e COLOR. Se il valore è
+;               VIC_TRANSPARENT il registro resta immutato.
 ;
 ; Input:
 ;   - .A (1 byte, CPU)     : Indirizzo del blocco di memoria (byte basso)
 ;   - .X (1 byte, CPU)     : Indirizzo del blocco di memoria (byte alto)
-;   - blocco (6 byte, RAM) : Valori per EXTCOL, BGCOL0, BGCOL1, BGCOL2, BGCOL3 e
-;                            COLOR, in quest'ordine
+;   - blocco (8 byte, RAM) : Valori per EXTCOL, BGCOL0, BGCOL1, BGCOL2, BGCOL3,
+;                            SPMC0, SPMC1 e COLOR, in quest'ordine
 ;
 ; Output:
 ;   - EXTCOL (1 byte, I/O) : Colore del bordo (se non è VIC_TRANSPARENT)
@@ -45,13 +189,17 @@
 ;   - BGCOL1 (1 byte, I/O) : Colore di sfondo 1 (se non è VIC_TRANSPARENT)
 ;   - BGCOL2 (1 byte, I/O) : Colore di sfondo 2 (se non è VIC_TRANSPARENT)
 ;   - BGCOL3 (1 byte, I/O) : Colore di sfondo 3 (se non è VIC_TRANSPARENT)
+;   - SPMC0 (1 byte, I/O)  : Colore comune degli sprite multicolori 0 (se non
+;                            è VIC_TRANSPARENT)
+;   - SPMC1 (1 byte, I/O)  : Colore comune degli sprite multicolori 1 (se non
+;                            è VIC_TRANSPARENT)
 ;   - COLOR (1 byte, RAM)  : Colore dei caratteri (se non è VIC_TRANSPARENT)
 ;
 ; Variazione Stack (.S):
 ;   - Stabile
 ;
 ; Registri Modificati:  .A, .Y, .P (Negative, Zero), INDEX2, EXTCOL, BGCOL0,
-;                       BGCOL1, BGCOL2, BGCOL3, COLOR
+;                       BGCOL1, BGCOL2, BGCOL3, SPMC0, SPMC1, COLOR
 ; Dipendenze Esterne:   <c64/symbols.asm>
 ;                       <chip/vic_ii.asm>
 ; ==============================================================================
@@ -59,35 +207,31 @@
   !zone VIC_Palette
 
     VIC_PALETTE:
-      ; ****************************************************************
-      ; * TO-DO: Espandere con altri due parametri.                    *
-      ; ****************************************************************
-
-      sta INDEX2                ; Prepara i registri.
+      sta INDEX2                    ; Prepara i registri.
       stx INDEX2+1
-      ldy #5
+      ldy #7
 
-      lda (INDEX2),y            ; Imposta il colore dei caratteri: se il colore è
-      bmi .Vic_Registers        ; il valore speciale VIC_TRANSPARENT allora non modificare il
-                                ; registro colore.
+      lda (INDEX2),y                ; Imposta il colore dei caratteri: se il colore è
+      bmi .VIC_Registers            ; il valore speciale VIC_TRANSPARENT allora non modificare il
+                                    ; registro colore.
 
       sta COLOR
 
-    .Vic_Registers:
-      dey
+    .VIC_Registers:
+      dey                           ; FOR (Inizializzazione)
 
     .Loop_Color_Register:
       ; Imposta i registri colore: se il colore è il valore speciale
       ; VIC_TRANSPARENT allora non modificare il registro.
 
-      lda (INDEX2),y            ; FOR (Corpo)
+      lda (INDEX2),y                ; FOR (Corpo)
       bmi .Next_Color_Register
 
       sta EXTCOL,y
 
     .Next_Color_Register:
-      dey                       ; NEXT: passa al registro precedente
-      bpl .Loop_Color_Register  ; NEXT: ripete finché .Y non è negativo
+      dey                           ; NEXT: passa al registro precedente
+      bpl .Loop_Color_Register      ; NEXT: ripete finché .Y non è negativo
 
     .Exit_VIC_PALETTE:
       rts
@@ -127,31 +271,31 @@
   !zone VIC_Bank
 
     VIC_BANK:
-      bcs .Read_Bank            ; Se C=1 vai alla subroutine di recupero indirizzo.
+      bcs .Else_Read_Bank           ; Se C=1 vai alla subroutine di recupero indirizzo.
 
-      rol a                     ; L'accumulatore deve contenere un valore tra 0 e 3.
+      rol a                         ; L'accumulatore deve contenere un valore tra 0 e 3.
       rol a
       rol a
       and #%00000011
-      eor #%00000011            ; I bit di selezione del banco hanno un valore inverso a
-                                ; quello del numero del banco.
-      sta ._MASK                ; Conserva temporaneamente la maschera di selezione.
+      eor #%00000011                ; I bit di selezione del banco hanno un valore inverso a
+                                    ; quello del numero del banco.
+      sta ._MASK                    ; Conserva temporaneamente la maschera di selezione.
 
-      lda C2DDRA                ; Setta le porte di controllo del cambio
-      ora #%00000011            ; di banco in direzione di uscita.
+      lda C2DDRA                    ; Setta le porte di controllo del cambio
+      ora #%00000011                ; di banco in direzione di uscita.
       sta C2DDRA
 
-      lda CI2PRA                ; Maschera i bit da lasciare immutati
+      lda CI2PRA                    ; Maschera i bit da lasciare immutati
       and #%11111100
-      ora ._MASK                ; ed applica la maschera di selezione.
+      ora ._MASK                    ; ed applica la maschera di selezione.
       sta CI2PRA
       +m_Bra .Exit_VIC_BANK
 
-    .Read_Bank:
-      lda CI2PRA                ; Inverti il valore dei bit di selezione del banco
+    .Else_Read_Bank:
+      lda CI2PRA                    ; Inverti il valore dei bit di selezione del banco
       eor #%00000011
 
-      ror a                     ; poi spostali nei bit 7 e 6 e pulisci i bit non necessari.
+      ror a                         ; poi spostali nei bit #6 e #7 e pulisci i bit non necessari.
       ror a
       ror a
       and #%11000000
@@ -198,31 +342,31 @@
   !zone VIC_Screen
 
     VIC_SCREEN:
-      bcs .Read_Screen          ; Se C=1 vai alla subroutine di recupero indirizzo.
+      bcs .Else_Read_Screen         ; Se C=1 vai alla subroutine di recupero indirizzo.
 
-      and #%11111100            ; Allinea il valore fornito al KB.
-      sta HIBASE                ; Aggiusta HIBASE in modo che l'editor del BASIC conosca la
-                                ; nuova posizione della memoria schermo.
+      and #%11111100                ; Allinea il valore fornito al KB.
+      sta HIBASE                    ; Aggiusta HIBASE in modo che l'editor del BASIC conosca la
+                                    ; nuova posizione della memoria schermo.
 
-      asl a                     ; La posizione della pagina all'interno del banco (bit 2-5)
-      asl a                     ; va spostata nei bit più significativi.
-      sta ._MASK                ; Conserva temporaneamente la maschera di selezione.
+      asl a                         ; La posizione della pagina all'interno del banco
+      asl a                         ; (bit #5-#2) va spostata nei bit più significativi.
+      sta ._MASK                    ; Conserva temporaneamente la maschera di selezione.
 
-      lda VMCSB                 ; Indica al VIC-II la posizione della memoria schermo.
+      lda VMCSB                     ; Indica al VIC-II la posizione della memoria schermo.
       and #%00001111
       ora ._MASK
       sta VMCSB
       +m_Bra .Exit_VIC_SCREEN
 
-    .Read_Screen:
-      jsr VIC_BANK              ; C è già 1, quindi leggi la posizione iniziale del banco
-      sta ._MASK                ; video e conservalo temporaneamente.
+    .Else_Read_Screen:
+      jsr VIC_BANK                  ; C è già 1, quindi leggi la posizione iniziale del banco
+      sta ._MASK                    ; video e conservalo temporaneamente.
 
-      lda VMCSB                 ; Estrai dal registro di controllo la posizione
-      and #%11110000            ; della pagina iniziale di memoria schermo
-      lsr a                     ; e dividila per 4.
+      lda VMCSB                     ; Estrai dal registro di controllo la posizione
+      and #%11110000                ; della pagina iniziale di memoria schermo
+      lsr a                         ; e dividila per 4.
       lsr a
-      ora ._MASK                ; Aggiungi la pagina iniziale del banco video.
+      ora ._MASK                    ; Aggiungi la pagina iniziale del banco video.
 
     .Exit_VIC_SCREEN:
       rts
@@ -267,30 +411,30 @@
   !zone VIC_Chargen
 
     VIC_CHARGEN:
-      bcs .Read_Chargen         ; Se C=1 vai alla subroutine di recupero indirizzo.
+      bcs .Else_Read_Chargen        ; Se C=1 vai alla subroutine di recupero indirizzo.
 
-      and #%00111000            ; Allinea il valore fornito ai 2KB ed estrai l'offset.
+      and #%00111000                ; Allinea il valore fornito ai 2KB ed estrai l'offset.
 
-      lsr a                     ; La posizione della pagina all'interno del banco (bit 2-5)
-      lsr a                     ; va spostata nei bit meno significativi.
-      ora #%00000001            ; Il bit 0 non è usato e solitamente è messo ad 1.
-      sta ._MASK                ; Conserva temporaneamente la maschera di selezione.
+      lsr a                         ; La posizione della pagina all'interno del banco
+      lsr a                         ; (bit #5-#3) va spostata nei bit meno significativi.
+      ora #%00000001                ; Il bit #0 non è usato e solitamente è messo ad 1.
+      sta ._MASK                    ; Conserva temporaneamente la maschera di selezione.
 
-      lda VMCSB                 ; Indica al VIC-II la posizione del generatore di caratteri.
+      lda VMCSB                     ; Indica al VIC-II la posizione del generatore di caratteri.
       and #%11110000
       ora ._MASK
       sta VMCSB
       +m_Bra .Exit_VIC_CHARGEN
 
-    .Read_Chargen:
-      jsr VIC_BANK              ; C è già 1, quindi leggi la posizione iniziale del banco
-      sta ._MASK                ; video e conservalo temporaneamente.
+    .Else_Read_Chargen:
+      jsr VIC_BANK                  ; C è già 1, quindi leggi la posizione iniziale del banco
+      sta ._MASK                    ; video e conservalo temporaneamente.
 
-      lda VMCSB                 ; Estrai dal registro di controllo la posizione
-      and #%00001110            ; della pagina iniziale del generatore di caratteri
-      asl a                     ; (il bit 0 non è usato) e moltiplicala per 4.
+      lda VMCSB                     ; Estrai dal registro di controllo la posizione
+      and #%00001110                ; della pagina iniziale del generatore di caratteri
+      asl a                         ; (il bit #0 non è usato) e moltiplicala per 4.
       asl a
-      ora ._MASK                ; Aggiungi la pagina iniziale del banco video.
+      ora ._MASK                    ; Aggiungi la pagina iniziale del banco video.
 
     .Exit_VIC_CHARGEN:
       rts
@@ -333,29 +477,29 @@
   !zone VIC_Bitmap
 
     VIC_BITMAP:
-      bcs .Read_Bitmap          ; Se C=1 vai alla subroutine di recupero indirizzo.
+      bcs .Else_Read_Bitmap         ; Se C=1 vai alla subroutine di recupero indirizzo.
 
-      and #%00100000            ; Allinea il valore fornito agli 8KB ed estrai l'offset.
+      and #%00100000                ; Allinea il valore fornito agli 8KB ed estrai l'offset.
 
-      lsr a                     ; La posizione della pagina all'interno del banco (bit 5)
-      lsr a                     ; va spostata nel bit 3.
-      sta ._MASK                ; Conserva temporaneamente la maschera di selezione.
+      lsr a                         ; La posizione della pagina all'interno del banco (bit #5)
+      lsr a                         ; va spostata nel bit #3.
+      sta ._MASK                    ; Conserva temporaneamente la maschera di selezione.
 
-      lda VMCSB                 ; Indica al VIC-II la posizione dell'area grafica bitmap.
+      lda VMCSB                     ; Indica al VIC-II la posizione dell'area grafica bitmap.
       and #%11110111
       ora ._MASK
       sta VMCSB
       +m_Bra .Exit_VIC_BITMAP
 
-    .Read_Bitmap:
-      jsr VIC_BANK              ; C è già 1, quindi leggi la posizione iniziale del banco
-      sta ._MASK                ; video e conservalo temporaneamente.
+    .Else_Read_Bitmap:
+      jsr VIC_BANK                  ; C è già 1, quindi leggi la posizione iniziale del banco
+      sta ._MASK                    ; video e conservalo temporaneamente.
 
-      lda VMCSB                 ; Estrai dal registro di controllo la posizione
-      and #%00001000            ; della pagina iniziale dell'area grafica bitmap
-      asl a                     ; e moltiplicala per 4.
+      lda VMCSB                     ; Estrai dal registro di controllo la posizione
+      and #%00001000                ; della pagina iniziale dell'area grafica bitmap
+      asl a                         ; e moltiplicala per 4.
       asl a
-      ora ._MASK                ; Aggiungi la pagina iniziale del banco video.
+      ora ._MASK                    ; Aggiungi la pagina iniziale del banco video.
 
     .Exit_VIC_BITMAP:
       rts
@@ -392,188 +536,47 @@
   !zone VIC_Copy_Chargen
 
     VIC_COPY_CHARGEN:
-      lda #<CHRGEN              ; Prepara i puntatori:
-      sta INDEX                 ; INDEX = CHRGEN.
+      lda #<CHRGEN                  ; Prepara i puntatori:
+      sta INDEX                     ; INDEX = CHRGEN.
       lda #>CHRGEN
       sta INDEX+1
 
-      lda #$00                  ; INDEX_2 = VICCHR * $1000.
+      lda #$00                      ; INDEX2 punta all'indirizzo al quale il chip VIC-II è
+                                    ; programmato, mediante il registro VMCSB, per trovare le
+                                    ; definizioni dei caratteri.
       sta INDEX2
       sec
       jsr VIC_CHARGEN
       sta INDEX2+1
 
-      +m_Disable_IO             ; Rendi visibile il generatore di caratteri e
-                                ; disabilita l'I/O.
+      +m_Disable_IO                 ; Rendi visibile il generatore di caratteri e
+                                    ; disabilita l'I/O.
 
-      ldy #$00                  ; Trasferisci 4KB di ROM, cioè 16 pagine di memoria.
+      ldy #0                        ; Trasferisci 4KB di ROM, cioè 16 pagine di memoria.
       ldx #16
 
-    .Loop_Copy_Page:
-      lda (INDEX),y
+    .Loop_Copy_Byte_And_Page:
+      lda (INDEX),y                 ; REPEAT
       sta (INDEX2),y
 
-      inc INDEX
-      inc INDEX2
-      bne .Loop_Copy_Page
+    .Loop_Check_Byte:
+      iny
+      bne .Loop_Copy_Byte_And_Page  ; REPEAT UNTIL: la pagina è finita
 
       inc INDEX+1
       inc INDEX2+1
 
+    .Loop_Check_Page:
       dex
-      bne .Loop_Copy_Page
+      bne .Loop_Copy_Byte_And_Page  ; REPEAT UNTIL: le pagine sono finite
 
-      +m_Enable_IO              ; Riabilita l'I/O e rendi invisibile il generatore
-                                ; di caratteri.
+      +m_Enable_IO                  ; Riabilita l'I/O e rendi invisibile il generatore
+                                    ; di caratteri.
 
     .Exit_VIC_COPY_CHARGEN:
       rts
 
   !zone
-}
-
-; ==============================================================================
-; MACRO: m_VIC_Bitmap_On
-; ------------------------------------------------------------------------------
-; Descrizione:  Abilita la modalità grafica bitmap impostando il bit #5
-;               di SCROLY.
-;
-; Input:
-;   - Nessuno
-;
-; Output:
-;   - SCROLY (1 byte, I/O) : Bit #5 a 1
-;
-; Variazione Stack (.S):
-;   - Stabile
-;
-; Registri Modificati:  .A, .P (Negative, Zero), SCROLY
-; Dipendenze Esterne:   <chip/vic_ii.asm>
-; ==============================================================================
-!macro m_VIC_Bitmap_On {
-    lda SCROLY
-    ora #%00100000              ; Setta il bit #5.
-    sta SCROLY
-}
-
-; ==============================================================================
-; MACRO: m_VIC_Bitmap_Off
-; ------------------------------------------------------------------------------
-; Descrizione:  Disabilita la modalità grafica bitmap azzerando il bit #5
-;               di SCROLY.
-;
-; Input:
-;   - Nessuno
-;
-; Output:
-;   - SCROLY (1 byte, I/O) : Bit #5 a 0
-;
-; Variazione Stack (.S):
-;   - Stabile
-;
-; Registri Modificati:  .A, .P (Negative, Zero), SCROLY
-; Dipendenze Esterne:   <chip/vic_ii.asm>
-; ==============================================================================
-!macro m_VIC_Bitmap_Off {
-    lda SCROLY
-    and #%11011111              ; Resetta il bit #5.
-    sta SCROLY
-}
-
-; ==============================================================================
-; MACRO: m_VIC_Ext_Color_On
-; ------------------------------------------------------------------------------
-; Descrizione:  Abilita il modo Colore di Sfondo Esteso (ECM) impostando il bit
-;               #6 di SCROLY.
-;
-; Input:
-;   - Nessuno
-;
-; Output:
-;   - SCROLY (1 byte, I/O) : Bit #6 a 1
-;
-; Variazione Stack (.S):
-;   - Stabile
-;
-; Registri Modificati:  .A, .P (Negative, Zero), SCROLY
-; Dipendenze Esterne:   <chip/vic_ii.asm>
-; ==============================================================================
-!macro m_VIC_Ext_Color_On {
-    lda SCROLY
-    ora #%01000000              ; Setta il bit #6.
-    sta SCROLY
-}
-
-; ==============================================================================
-; MACRO: m_VIC_Ext_Color_Off
-; ------------------------------------------------------------------------------
-; Descrizione:  Disabilita il modo Colore di Sfondo Esteso (ECM) azzerando il
-;               bit #6 di SCROLY.
-;
-; Input:
-;   - Nessuno
-;
-; Output:
-;   - SCROLY (1 byte, I/O) : Bit #6 a 0
-;
-; Variazione Stack (.S):
-;   - Stabile
-;
-; Registri Modificati:  .A, .P (Negative, Zero), SCROLY
-; Dipendenze Esterne:   <chip/vic_ii.asm>
-; ==============================================================================
-!macro m_VIC_Ext_Color_Off {
-    lda SCROLY
-    and #%10111111              ; Resetta il bit #6.
-    sta SCROLY
-}
-
-; ==============================================================================
-; MACRO: m_VIC_Multicolor_On
-; ------------------------------------------------------------------------------
-; Descrizione:  Abilita la modalità grafica multicolore impostando il bit #4
-;               di SCROLX.
-;
-; Input:
-;   - Nessuno
-;
-; Output:
-;   - SCROLX (1 byte, I/O) : Bit #4 a 1
-;
-; Variazione Stack (.S):
-;   - Stabile
-;
-; Registri Modificati:  .A, .P (Negative, Zero), SCROLX
-; Dipendenze Esterne:   <chip/vic_ii.asm>
-; ==============================================================================
-!macro m_VIC_Multicolor_On {
-    lda SCROLX
-    ora #%00010000              ; Setta il bit #4.
-    sta SCROLX
-}
-
-; ==============================================================================
-; MACRO: m_VIC_Multicolor_Off
-; ------------------------------------------------------------------------------
-; Descrizione:  Disabilita la modalità grafica multicolore azzerando il bit #4
-;               di SCROLX.
-;
-; Input:
-;   - Nessuno
-;
-; Output:
-;   - SCROLX (1 byte, I/O) : Bit #4 a 0
-;
-; Variazione Stack (.S):
-;   - Stabile
-;
-; Registri Modificati:  .A, .P (Negative, Zero), SCROLX
-; Dipendenze Esterne:   <chip/vic_ii.asm>
-; ==============================================================================
-!macro m_VIC_Multicolor_Off {
-    lda SCROLX
-    and #%11101111              ; Resetta il bit #4.
-    sta SCROLX
 }
 
 ; ==============================================================================
@@ -606,16 +609,16 @@
   !zone Compute_Cell_Address
 
     COMPUTE_CELL_ADDRESS:
-      pha                       ; Salva l'indirizzo di base sullo stack.
-      clc                       ; Somma il valore della colonna selezionata al byte basso
-                                ; dell'offset della posizione iniziale della riga scelta.
+      pha                           ; Salva l'indirizzo di base sullo stack.
+      clc                           ; Somma il valore della colonna selezionata al byte basso
+                                    ; dell'offset della posizione iniziale della riga scelta.
       txa
       adc .ROW_OFFSET_LO,y
-      sta INDEX2                ; Salva il byte basso dell'indirizzo della cella in INDEX2.
+      sta INDEX2                    ; Salva il byte basso dell'indirizzo della cella in INDEX2.
 
-      pla                       ; Estrai il byte alto dell'offset e sommalo all'indirizzo alto
-      adc .ROW_OFFSET_HI,y      ; della pagina base assieme al riporto generato dalla somma
-      sta INDEX2+1              ; precedente, poi salvalo in INDEX2+1.
+      pla                           ; Estrai il byte alto dell'offset e sommalo all'indirizzo alto
+      adc .ROW_OFFSET_HI,y          ; della pagina base assieme al riporto generato dalla somma
+      sta INDEX2+1                  ; precedente, poi salvalo in INDEX2+1.
 
     .Exit_COMPUTE_CELL_ADDRESS:
       rts
@@ -623,7 +626,7 @@
     ; Byte basso degli offset della posizione iniziale di ciascuna
     ; riga dello schermo.
     .ROW_OFFSET_LO:
-      !byte   <0, <40, <80, <120, <160, <200, <240, <280
+      !byte   <0,  <40,  <80, <120, <160, <200, <240, <280
       !byte <320, <360, <400, <440, <480, <520, <560, <600
       !byte <640, <680, <720, <760, <800, <840, <880, <920
       !byte <960
@@ -631,7 +634,7 @@
     ; Byte alto degli offset della posizione iniziale di ciascuna
     ; riga dello schermo.
     .ROW_OFFSET_HI:
-      !byte   >0, >40, >80, >120, >160, >200, >240, >280
+      !byte   >0,  >40,  >80, >120, >160, >200, >240, >280
       !byte >320, >360, >400, >440, >480, >520, >560, >600
       !byte >640, >680, >720, >760, >800, >840, >880, >920
       !byte >960
@@ -664,10 +667,10 @@
   !zone Get_Screen_Cell
 
     GET_SCREEN_CELL:
-      lda HIBASE                ; Inizializza .A con l'indirizzo di base della memoria schermo
-      jsr COMPUTE_CELL_ADDRESS  ; e calcola l'indirizzo della cella.
+      lda HIBASE                    ; Inizializza .A con l'indirizzo di base della memoria schermo
+      jsr COMPUTE_CELL_ADDRESS      ; e calcola l'indirizzo della cella.
 
-      ldy #0                    ; Restituisci in .A il contenuto della cella.
+      ldy #0                        ; Restituisci in .A il contenuto della cella.
       lda (INDEX2),y
 
     .Exit_GET_SCREEN_CELL:
@@ -701,11 +704,11 @@
   !zone Get_Color_Cell
 
     GET_COLOR_CELL:
-      lda #>COLRAM              ; Inizializza .A con l'indirizzo di base della memoria colore
-      jsr COMPUTE_CELL_ADDRESS  ; e calcola l'indirizzo della cella.
+      lda #>COLRAM                  ; Inizializza .A con l'indirizzo di base della memoria colore
+      jsr COMPUTE_CELL_ADDRESS      ; e calcola l'indirizzo della cella.
 
-      ldy #0                    ; Restituisci in .A il contenuto della cella
-      lda (INDEX2),y            ; azzerando i bit spurii.
+      ldy #0                        ; Restituisci in .A il contenuto della cella
+      lda (INDEX2),y                ; azzerando i bit spurii.
       and #%00001111
 
     .Exit_GET_COLOR_CELL:
