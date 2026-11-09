@@ -2,7 +2,7 @@
 ; FILE:           branch.asm
 ; PROGETTO:       Libreria di Sistema (system.c64)
 ; TARGET:         ACME Assembler / MOS 6510 (Commodore 64)
-; DESCRIZIONE:    Macro per salti condizionati relativi e con flag di overflow.
+; DESCRIZIONE:    Macro per salti condizionati relativi e con flag di oVerflow.
 ; CONTENUTO:      m_Bra     Salta sempre
 ;                 m_Brn     Salta mai
 ;                 m_L_Bra   Salta lungo sempre

@@ -69,6 +69,7 @@
     LOMEM:
       lda #$00                  ; Scrivi $00 nella locazione puntata.
       sta ($00,x)
+
       inc $00,x                 ; Incrementa il puntatore di 1
       bne .No_Carry_Pointer
 

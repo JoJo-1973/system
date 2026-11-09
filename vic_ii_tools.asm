@@ -704,8 +704,9 @@
   !zone Get_Color_Cell
 
     GET_COLOR_CELL:
-      lda #>COLRAM                  ; Inizializza .A con l'indirizzo di base della memoria colore
-      jsr COMPUTE_CELL_ADDRESS      ; e calcola l'indirizzo della cella.
+      lda #>COLRAM                  ; Inizializza .A con l'indirizzo di base della memoria colore.
+
+      jsr COMPUTE_CELL_ADDRESS      ; Calcola l'indirizzo della cella.
 
       ldy #0                        ; Restituisci in .A il contenuto della cella
       lda (INDEX2),y                ; azzerando i bit spurii.
