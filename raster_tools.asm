@@ -609,6 +609,29 @@
 ;                       <system/standard.asm>
 ; ==============================================================================
 !macro m_Enter_Stable_IRQ .rasterline_ {
+    ; ****************************************************************
+    ; * TO-DO: campionamento dell'IRQ in m_Enter_Stable_IRQ,         *
+    ; * possibile discrepanza di un ciclo.                           *
+    ; *                                                              *
+    ; * Origine: è stato chiesto di verificare se la sequenza di nop *
+    ; * usata nella fase di sincronizzazione del raster ha la        *
+    ; * lunghezza giusta, se i commenti che la descrivono sono       *
+    ; * corretti e se dipendono dal modello di VIC-II (Old NTSC, New *
+    ; * NTSC o PAL).                                                 *
+    ; *                                                              *
+    ; * Cosa succede: da quella verifica è emersa una possibile      *
+    ; * discrepanza di un ciclo, legata alla temporizzazione esatta  *
+    ; * del VIC-II. La discrepanza non è dimostrata: non è stata né  *
+    ; * confermata né esclusa, e gli altri passaggi del ragionamento *
+    ; * non sono stati registrati.                                   *
+    ; *                                                              *
+    ; * Da fare: ricontrollare la sequenza di nop e i conteggi       *
+    ; * (finestre di cicli, comparazione al ciclo 59 o 60, ciclo 3   *
+    ; * della linea) per ciascun modello di VIC-II, con un emulatore *
+    ; * a temporizzazione esatta o su macchina reale. Se la          *
+    ; * discrepanza c'è, correggere i commenti o il codice.          *
+    ; ****************************************************************
+
     ; Il seguente gestore delle interruzioni viene eseguito dopo
     ; che sono passati 38-44 cicli (9-15 cicli se il Kernal è
     ; stato disabilitato) dall'istante in cui il raster ha
