@@ -243,7 +243,7 @@
 ; SUBROUTINE: VIC_BANK
 ; ------------------------------------------------------------------------------
 ; Descrizione:  Imposta o recupera l'indirizzo iniziale del banco di memoria da
-;               16KB visibile dal chip VIC-II.
+;               16 KB visibile dal chip VIC-II.
 ;                 C = 0: .A contiene la pagina iniziale del banco da
 ;                        selezionare, che può essere $00, $40, $80 oppure
 ;                        $C0. Valori differenti vengono allineati al limite
@@ -413,7 +413,7 @@
     VIC_CHARGEN:
       bcs .Else_Read_Chargen        ; Se C=1 vai alla subroutine di recupero indirizzo.
 
-      and #%00111000                ; Allinea il valore fornito ai 2KB ed estrai l'offset.
+      and #%00111000                ; Allinea il valore fornito ai 2 KB ed estrai l'offset.
 
       lsr a                         ; La posizione della pagina all'interno del banco
       lsr a                         ; (bit #5-#3) va spostata nei bit meno significativi.
@@ -479,7 +479,7 @@
     VIC_BITMAP:
       bcs .Else_Read_Bitmap         ; Se C=1 vai alla subroutine di recupero indirizzo.
 
-      and #%00100000                ; Allinea il valore fornito agli 8KB ed estrai l'offset.
+      and #%00100000                ; Allinea il valore fornito agli 8 KB ed estrai l'offset.
 
       lsr a                         ; La posizione della pagina all'interno del banco (bit #5)
       lsr a                         ; va spostata nel bit #3.
@@ -552,7 +552,7 @@
       +m_Disable_IO                 ; Rendi visibile il generatore di caratteri e
                                     ; disabilita l'I/O.
 
-      ldy #0                        ; Trasferisci 4KB di ROM, cioè 16 pagine di memoria.
+      ldy #0                        ; Trasferisci 4 KB di ROM, cioè 16 pagine di memoria.
       ldx #16
 
     .Loop_Copy_Byte_And_Page:

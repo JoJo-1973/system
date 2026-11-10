@@ -78,7 +78,7 @@ Questo documento deriva dai sorgenti. Per ogni dettaglio fanno fede i contratti 
 | | [`m_CCf`](#utilita-m_ccf) | Complementa il flag Carry |
 | | [`m_Skip1`](#utilita-m_skip1) | Maschera l'istruzione seguente (1 byte) |
 | | [`m_Skip2`](#utilita-m_skip2) | Maschera l'istruzione seguente (2 byte) |
-| | [`m_Delay_5n1`](#utilita-m_delay_5n1) | Consuma 5n+1 cicli a vuoto |
+| | [`m_Delay_5n1`](#utilita-m_delay_5n1) | Consuma 5n+1 cicli a vuoto |
 | [`vic_ii_tools.asm`](#modulo-vic_ii_tools) | [`m_VIC_Bitmap_On`](#utilita-m_vic_bitmap_on) | Abilita il modo bitmap |
 | | [`m_VIC_Bitmap_Off`](#utilita-m_vic_bitmap_off) | Disabilita il modo bitmap |
 | | [`m_VIC_Ext_Color_On`](#utilita-m_vic_ext_color_on) | Abilita il modo ECM |
@@ -829,7 +829,7 @@ Imposta il colore di primo piano del carattere localizzato alla colonna ed alla 
 <a id="utilita-print_raw"></a>
 ### PRINT_RAW
 
-La subroutine `PRINT_RAW` stampa una stringa di testo il cui indirizzo è puntato da .YA: è pensata come sostituto della subroutine di sistema `STROUT` in quanto non altera il contenuto di `FAC` o `ARG`. Per mantenere la compatibilità con `STROUT` questa è l'unica subroutine di stampa che non supporta i due byte di posizionamento sullo schermo che precedono il messaggio.
+La subroutine `PRINT_RAW` stampa una stringa di testo il cui indirizzo è puntato da `.YA`: è pensata come sostituto della subroutine di sistema `STROUT` in quanto non altera il contenuto di `FAC` o `ARG`. Per mantenere la compatibilità con `STROUT` questa è l'unica subroutine di stampa che non supporta i due byte di posizionamento sullo schermo che precedono il messaggio.
 
 | Voce | Contenuto |
 |---|---|
@@ -963,7 +963,7 @@ $40 = Old NTSC  64 cicli per linea
 $C0 = New NTSC  65 cicli per linea
 ```
 
-La macro `m_Raster_Grip` fa uso di questa informazione per iniettare nel codice 1 o 2 cicli extra di temporizzazione in base alla versione rilevata del chip VIC-II.
+La macro `m_Raster_Grip` fa uso di questa informazione per iniettare nel codice 1 o 2 cicli extra di temporizzazione in base alla versione rilevata del chip VIC-II.
 
 | Voce | Contenuto |
 |---|---|
@@ -1025,7 +1025,7 @@ La macro va obbligatoriamente invocata come ultima istruzione del gestore delle 
 
 Chiamata: `+m_Set_Rasterline .rasterline_`
 
-Macro di supporto per il settaggio del registro `RASTER` del chip VIC-II. La macro viene eseguita in tempo costante (16 cicli) e gestisce correttamente il settaggio del bit #9.
+Macro di supporto per il settaggio del registro `RASTER` del chip VIC-II. La macro viene eseguita in tempo costante (16 cicli) e gestisce correttamente il settaggio del bit #9.
 
 | Voce | Contenuto |
 |---|---|
@@ -1038,7 +1038,7 @@ Macro di supporto per il settaggio del registro `RASTER` del chip VIC-II. La mac
 <a id="utilita-m_raster_grip"></a>
 ### m_Raster_Grip
 
-Macro per la sincronizzazione del raster in maniera indipendente dall'hardware: siccome le 3 versioni esistenti del chip VIC-II (PAL, Old NTSC e New NTSC) producono una linea di raster in 63, 64 e 65 cicli rispettivamente, è necessario che il codice di sincronizzazione consumi 1 o 2 cicli di ritardo in più qualora l'hardware lo imponga. È pertanto obbligatorio che questa macro venga eseguita solo dopo l'esecuzione della macro `m_Init_Raster_System` che si occuperà dell'identificazione del chip VIC-II. La macro consuma 7 cicli su hardware PAL, 8 cicli su hardware Old NTSC e 9 cicli su hardware New NTSC. Nei calcoli di temporizzazione il programmatore dovrà sempre assumere che la linea di raster venga disegnata in 63 cicli (PAL) e che `m_Raster_Grip` duri 7 cicli: l'implementazione interna garantirà la coerenza dei calcoli in caso di hardware NTSC.
+Macro per la sincronizzazione del raster in maniera indipendente dall'hardware: siccome le 3 versioni esistenti del chip VIC-II (PAL, Old NTSC e New NTSC) producono una linea di raster in 63, 64 e 65 cicli rispettivamente, è necessario che il codice di sincronizzazione consumi 1 o 2 cicli di ritardo in più qualora l'hardware lo imponga. È pertanto obbligatorio che questa macro venga eseguita solo dopo l'esecuzione della macro `m_Init_Raster_System` che si occuperà dell'identificazione del chip VIC-II. La macro consuma 7 cicli su hardware PAL, 8 cicli su hardware Old NTSC e 9 cicli su hardware New NTSC. Nei calcoli di temporizzazione il programmatore dovrà sempre assumere che la linea di raster venga disegnata in 63 cicli (PAL) e che `m_Raster_Grip` duri 7 cicli: l'implementazione interna garantirà la coerenza dei calcoli in caso di hardware NTSC.
 
 | Voce | Contenuto |
 |---|---|
@@ -1115,7 +1115,7 @@ IMPORTANTE: la macro presuppone che (`.rasterline_`-3) non corrisponda ad una "b
 
 Chiamata: `+m_Enter_Stable_IRQ .rasterline_`
 
-La macro implementa la seconda parte della tecnica di stabilizzazione del raster mediante doppio interrupt. Per prima cosa si effettuano le operazioni di riconoscimento del primo interrupt secondo le buone pratiche descritte in `m_Enter_Unstable_IRQ` impostando il secondo interrupt in modo che scatti a `.rasterline_`-1 (il codice di sincronizzazione parte dall'etichetta @Sync); le operazioni differiscono in base allo stato di attivazione del Kernal. Il tempo rimanente viene impiegato per salvare il valore di `.S`, dopodiché si consumano cicli in attesa che scatti il secondo interrupt mentre si eseguono istruzioni di durata nota. Il secondo interrupt procede a bruciare cicli (il numero dipende dallo stato di attivazione del Kernal) per eseguire un'operazione di comparazione esattamente al ciclo 59 o 60. Un'operazione di salto fittizia brucerà 2 oppure 3 cicli a seconda del risultato della comparazione garantendo che l'istruzione successiva venga eseguita con certezza al ciclo 3 della linea di raster `.rasterline_`, stabilizzando così il raster!
+La macro implementa la seconda parte della tecnica di stabilizzazione del raster mediante doppio interrupt. Per prima cosa si effettuano le operazioni di riconoscimento del primo interrupt secondo le buone pratiche descritte in `m_Enter_Unstable_IRQ` impostando il secondo interrupt in modo che scatti a `.rasterline_`-1 (il codice di sincronizzazione parte dall'etichetta @Sync); le operazioni differiscono in base allo stato di attivazione del Kernal. Il tempo rimanente viene impiegato per salvare il valore di `.S`, dopodiché si consumano cicli in attesa che scatti il secondo interrupt mentre si eseguono istruzioni di durata nota. Il secondo interrupt procede a bruciare cicli (il numero dipende dallo stato di attivazione del Kernal) per eseguire un'operazione di comparazione esattamente al ciclo 59 o 60. Un'operazione di salto fittizia brucerà 2 oppure 3 cicli a seconda del risultato della comparazione garantendo che l'istruzione successiva venga eseguita con certezza al ciclo 3 della linea di raster `.rasterline_`, stabilizzando così il raster!
 
 IMPORTANTE: la macro presuppone che (`.rasterline_`-1) non corrisponda ad una "badline". In caso contrario i calcoli di temporizzazione su cui si basa il processo di sincronizzazione non saranno validi, con effetti imprevedibili.
 
@@ -1266,7 +1266,7 @@ Complementa il flag Carry senza alterare gli altri flag: spreca cicli ed istruzi
 <a id="utilita-m_skip1"></a>
 ### m_Skip1
 
-Inserisce l'istruzione illegale NOP #imm (2 cicli) in modo da mascherare l'istruzione da un byte che segue, senza alterare i flag. Il byte emesso è l'opcode di NOP: il primo byte dell'istruzione seguente ne diventa l'operando e non viene eseguito.
+Inserisce l'istruzione illegale NOP #imm (2 cicli) in modo da mascherare l'istruzione da un byte che segue, senza alterare i flag. Il byte emesso è l'opcode di NOP: il primo byte dell'istruzione seguente ne diventa l'operando e non viene eseguito.
 
 | Voce | Contenuto |
 |---|---|
@@ -1279,7 +1279,7 @@ Inserisce l'istruzione illegale NOP #imm (2 cicli) in modo da mascherare l'istru
 <a id="utilita-m_skip2"></a>
 ### m_Skip2
 
-Inserisce l'istruzione illegale NOP abs (4 cicli) in modo da mascherare l'istruzione da due byte che segue, senza alterare i flag. Il byte emesso è l'opcode di NOP: i due byte dell'istruzione seguente ne diventano l'operando e non vengono eseguiti.
+Inserisce l'istruzione illegale NOP abs (4 cicli) in modo da mascherare l'istruzione da due byte che segue, senza alterare i flag. Il byte emesso è l'opcode di NOP: i due byte dell'istruzione seguente ne diventano l'operando e non vengono eseguiti.
 
 | Voce | Contenuto |
 |---|---|
@@ -1390,7 +1390,7 @@ Disabilita la modalità grafica multicolore azzerando il bit #4 di `SCROLX`.
 <a id="utilita-vic_palette"></a>
 ### VIC_PALETTE
 
-Imposta i colori di bordo, sfondo, carattere, multicolore/colore esteso e multicolore/sprite in un'unica operazione. L'indirizzo in .XA punta ad un blocco di memoria che contiene in successione i valori da assegnare ai registri `EXTCOL`, `BGCOL0`, `BGCOL1`, `BGCOL2`, `BGCOL3`, `SPMC0`, `SPMC1` e `COLOR`. Se il valore è `VIC_TRANSPARENT` il registro resta immutato.
+Imposta i colori di bordo, sfondo, carattere, multicolore/colore esteso e multicolore/sprite in un'unica operazione. L'indirizzo in `.XA` punta ad un blocco di memoria che contiene in successione i valori da assegnare ai registri `EXTCOL`, `BGCOL0`, `BGCOL1`, `BGCOL2`, `BGCOL3`, `SPMC0`, `SPMC1` e `COLOR`. Se il valore è `VIC_TRANSPARENT` il registro resta immutato.
 
 | Voce | Contenuto |
 |---|---|
@@ -1403,7 +1403,7 @@ Imposta i colori di bordo, sfondo, carattere, multicolore/colore esteso e multic
 <a id="utilita-vic_bank"></a>
 ### VIC_BANK
 
-Imposta o recupera l'indirizzo iniziale del banco di memoria da 16KB visibile dal chip VIC-II.
+Imposta o recupera l'indirizzo iniziale del banco di memoria da 16 KB visibile dal chip VIC-II.
 
 ```
 C = 0: .A contiene la pagina iniziale del banco da
