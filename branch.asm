@@ -5,8 +5,6 @@
 ; DESCRIZIONE:    Macro per salti condizionati relativi e con flag di oVerflow.
 ; CONTENUTO:      m_Bra     Salta sempre
 ;                 m_Brn     Salta mai
-;                 m_L_Bra   Salta lungo sempre
-;                 m_L_Brn   Salta lungo mai
 ;                 m_Bhi     Salta se più alto (.A > M senza segno)
 ;                 m_Bhs     Salta se più alto o uguale (.A >= M senza segno)
 ;                 m_Blo     Salta se più basso (.A < M senza segno)
@@ -15,6 +13,8 @@
 ;                 m_Bge     Salta se maggiore o uguale (.A >= M con segno)
 ;                 m_Blt     Salta se minore (.A < M con segno)
 ;                 m_Ble     Salta se minore o uguale (.A <= M con segno)
+;                 m_L_Bra   Salta lungo sempre
+;                 m_L_Brn   Salta lungo mai
 ;                 m_L_Bhi   Salta lungo se più alto (senza segno)
 ;                 m_L_Bhs   Salta lungo se più alto o uguale (senza segno)
 ;                 m_L_Blo   Salta lungo se più basso (senza segno)
@@ -74,47 +74,6 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_Brn .addr_ {
-}
-
-; ==============================================================================
-; MACRO: m_L_Bra
-; ------------------------------------------------------------------------------
-; Descrizione:  Salta lungo sempre.
-;
-; Input:
-;   - .addr_ (2 byte, Macro) : Indirizzo di destinazione
-;
-; Output:
-;   - Nessuno
-;
-; Variazione Stack (.S):
-;   - Stabile
-;
-; Registri Modificati:  Nessuno
-; Dipendenze Esterne:   Nessuna
-; ==============================================================================
-!macro m_L_Bra .addr_ {
-    jmp .addr_
-}
-
-; ==============================================================================
-; MACRO: m_L_Brn
-; ------------------------------------------------------------------------------
-; Descrizione:  Salta lungo mai.
-;
-; Input:
-;   - .addr_ (2 byte, Macro) : Indirizzo (ignorato)
-;
-; Output:
-;   - Nessuno
-;
-; Variazione Stack (.S):
-;   - Stabile
-;
-; Registri Modificati:  Nessuno
-; Dipendenze Esterne:   Nessuna
-; ==============================================================================
-!macro m_L_Brn .addr_ {
 }
 
 ; ==============================================================================
@@ -317,6 +276,47 @@
     bvs .addr_
 
   @No_Jump:
+}
+
+; ==============================================================================
+; MACRO: m_L_Bra
+; ------------------------------------------------------------------------------
+; Descrizione:  Salta lungo sempre.
+;
+; Input:
+;   - .addr_ (2 byte, Macro) : Indirizzo di destinazione
+;
+; Output:
+;   - Nessuno
+;
+; Variazione Stack (.S):
+;   - Stabile
+;
+; Registri Modificati:  Nessuno
+; Dipendenze Esterne:   Nessuna
+; ==============================================================================
+!macro m_L_Bra .addr_ {
+    jmp .addr_
+}
+
+; ==============================================================================
+; MACRO: m_L_Brn
+; ------------------------------------------------------------------------------
+; Descrizione:  Salta lungo mai.
+;
+; Input:
+;   - .addr_ (2 byte, Macro) : Indirizzo (ignorato)
+;
+; Output:
+;   - Nessuno
+;
+; Variazione Stack (.S):
+;   - Stabile
+;
+; Registri Modificati:  Nessuno
+; Dipendenze Esterne:   Nessuna
+; ==============================================================================
+!macro m_L_Brn .addr_ {
 }
 
 ; ==============================================================================
