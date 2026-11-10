@@ -586,7 +586,7 @@
 ;               corrispondente ad una posizione dello schermo espressa in
 ;               notazione cartesiana: origine in alto a sinistra, asse x verso
 ;               destra, asse y verso il basso. Se .A = 0 restituisce in INDEX2
-;               l'offset rispetto all'origine (0,0), altrimenti la posizione
+;               l'offset rispetto all'origine (0; 0), altrimenti la posizione
 ;               assoluta per uno schermo che inizia alla pagina contenuta in .A:
 ;               .A = (HIBASE) per lo schermo corrente, .A = >COLRAM per la
 ;               memoria colore.

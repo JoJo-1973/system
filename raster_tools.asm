@@ -115,9 +115,9 @@
       bne .Loop_Spin_261                  ; REPEAT UNTIL: il raster ha raggiunto la linea 261
 
     .Check_Line_262:
-      +m_Delay_5n1 ".X", 19               ; Non appena entrati nella linea 261, facciamo passare 96
-                                          ; cicli in modo da essere sicuri di essere ben entrati nella
-                                          ; linea successiva.
+      +m_Delay_5n1 ".X", 19               ; Non appena entrati nella linea 261, facciamo passare
+                                          ; 96 cicli in modo da essere sicuri di essere ben entrati
+                                          ; nella linea successiva.
 
       bit SCROLY                          ; Se il contatore è ancora maggiore di 256 vuol dire che siamo
                                           ; ancora al fondo dello schermo, e l'identificazione non è
@@ -347,8 +347,8 @@
                                           ;              impiega 3 cicli, altrimenti 2.
 
   @Any_NTSC:
-    bmi @New_NTSC                         ; 06-07 (+3/2) Se il chip è la versione "New NTSC" (N=1) il salto impiega 3
-                                          ;              cicli, altrimenti 2.
+    bmi @New_NTSC                         ; 06-07 (+3/2) Se il chip è la versione "New NTSC" (N=1) il salto impiega
+                                          ;              3 cicli, altrimenti 2.
 
   @New_NTSC:
 }
