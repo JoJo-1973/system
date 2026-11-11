@@ -645,7 +645,7 @@
 ; ==============================================================================
 ; SUBROUTINE: GET_SCREEN_CELL
 ; ------------------------------------------------------------------------------
-; Descrizione:  Restituisce il codice schermo del carattere posizionato alla
+; Descrizione:  Restituisce il codice Schermo del carattere posizionato alla
 ;               colonna .X ed alla riga .Y dello schermo corrente.
 ;               Richiede __USE_COMPUTE_CELL_ADDRESS = 1.
 ;
@@ -654,7 +654,7 @@
 ;   - .Y (1 byte, CPU)    : Riga della cella (0-24)
 ;
 ; Output:
-;   - .A (1 byte, CPU)    : Codice schermo del carattere
+;   - .A (1 byte, CPU)    : Codice Schermo del carattere
 ;   - INDEX2 (2 byte, ZP) : Indirizzo della cella
 ;
 ; Variazione Stack (.S):

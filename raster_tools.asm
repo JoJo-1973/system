@@ -126,7 +126,7 @@
     .Old_NTSC:
       ldy #%01000000                      ; Altrimenti siamo ritornati all'inizio dello schermo e siamo
                                           ; sicuri di aver identificato la versione "Old NTSC".
-      bne .Exit_INIT_RASTER_SYSTEM
+      bne .Exit_M_INIT_RASTER_SYSTEM
 
     .Else_If_Line_263:
       +m_Delay_5n1 ".X", 19               ; Facciamo passare altri 96 cicli e ripetiamo il test.
@@ -137,12 +137,12 @@
 
     .New_NTSC:
       ldy #%11000000                      ; altrimenti non può che essere in versione "New NTSC".
-      bne .Exit_INIT_RASTER_SYSTEM
+      bne .Exit_M_INIT_RASTER_SYSTEM
 
     .Else_PAL:
       ldy #%00000000
 
-    .Exit_INIT_RASTER_SYSTEM:
+    .Exit_M_INIT_RASTER_SYSTEM:
       sty __VIC_MODEL                     ; Memorizza il risultato, riabilita le interruzioni ed esci.
 
       !if (__DISABLE_KERNAL = 1) {
