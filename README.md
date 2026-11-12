@@ -20,8 +20,6 @@ Questo documento deriva dai sorgenti. Per ogni dettaglio fanno fede i contratti 
 | | [`HIMEM`](#utilita-himem) | Sposta la fine della memoria BASIC |
 | [`branch.asm`](#modulo-branch) | [`m_Bra`](#utilita-m_bra) | Salta sempre |
 | | [`m_Brn`](#utilita-m_brn) | Salta mai |
-| | [`m_L_Bra`](#utilita-m_l_bra) | Salta lungo sempre |
-| | [`m_L_Brn`](#utilita-m_l_brn) | Salta lungo mai |
 | | [`m_Bhi`](#utilita-m_bhi) | Salta se più alto (.A > M senza segno) |
 | | [`m_Bhs`](#utilita-m_bhs) | Salta se più alto o uguale (.A >= M senza segno) |
 | | [`m_Blo`](#utilita-m_blo) | Salta se più basso (.A < M senza segno) |
@@ -30,6 +28,8 @@ Questo documento deriva dai sorgenti. Per ogni dettaglio fanno fede i contratti 
 | | [`m_Bge`](#utilita-m_bge) | Salta se maggiore o uguale (.A >= M con segno) |
 | | [`m_Blt`](#utilita-m_blt) | Salta se minore (.A < M con segno) |
 | | [`m_Ble`](#utilita-m_ble) | Salta se minore o uguale (.A <= M con segno) |
+| | [`m_L_Bra`](#utilita-m_l_bra) | Salta lungo sempre |
+| | [`m_L_Brn`](#utilita-m_l_brn) | Salta lungo mai |
 | | [`m_L_Bhi`](#utilita-m_l_bhi) | Salta lungo se più alto (senza segno) |
 | | [`m_L_Bhs`](#utilita-m_l_bhs) | Salta lungo se più alto o uguale (senza segno) |
 | | [`m_L_Blo`](#utilita-m_l_blo) | Salta lungo se più basso (senza segno) |
@@ -319,36 +319,6 @@ Salta mai.
 
 [↑ Torna al contenuto](#contenuto)
 
-<a id="utilita-m_l_bra"></a>
-### m_L_Bra
-
-Chiamata: `+m_L_Bra .addr_`
-
-Salta lungo sempre.
-
-| Voce | Contenuto |
-|---|---|
-| Input | `.addr_` (2 byte, Macro): Indirizzo di destinazione |
-| Output | Nessuno |
-| Registri Modificati | Nessuno |
-
-[↑ Torna al contenuto](#contenuto)
-
-<a id="utilita-m_l_brn"></a>
-### m_L_Brn
-
-Chiamata: `+m_L_Brn .addr_`
-
-Salta lungo mai.
-
-| Voce | Contenuto |
-|---|---|
-| Input | `.addr_` (2 byte, Macro): Indirizzo (ignorato) |
-| Output | Nessuno |
-| Registri Modificati | Nessuno |
-
-[↑ Torna al contenuto](#contenuto)
-
 <a id="utilita-m_bhi"></a>
 ### m_Bhi
 
@@ -464,6 +434,36 @@ Salta se minore o uguale (`.A` <= M con segno).
 | Voce | Contenuto |
 |---|---|
 | Input | `.addr_` (2 byte, Macro): Indirizzo di destinazione |
+| Output | Nessuno |
+| Registri Modificati | Nessuno |
+
+[↑ Torna al contenuto](#contenuto)
+
+<a id="utilita-m_l_bra"></a>
+### m_L_Bra
+
+Chiamata: `+m_L_Bra .addr_`
+
+Salta lungo sempre.
+
+| Voce | Contenuto |
+|---|---|
+| Input | `.addr_` (2 byte, Macro): Indirizzo di destinazione |
+| Output | Nessuno |
+| Registri Modificati | Nessuno |
+
+[↑ Torna al contenuto](#contenuto)
+
+<a id="utilita-m_l_brn"></a>
+### m_L_Brn
+
+Chiamata: `+m_L_Brn .addr_`
+
+Salta lungo mai.
+
+| Voce | Contenuto |
+|---|---|
+| Input | `.addr_` (2 byte, Macro): Indirizzo (ignorato) |
 | Output | Nessuno |
 | Registri Modificati | Nessuno |
 
@@ -767,7 +767,7 @@ Posiziona il cursore sulla riga e sulla colonna specificata dello schermo corren
 <a id="utilita-plot_char"></a>
 ### PLOT_CHAR
 
-Scrive un carattere sullo schermo alla riga e colonna specificate e supporta in modo trasparente il modo Colore di Sfondo Esteso. Se questo modo è attivo il codice schermo del carattere è automaticamente riportato all'intervallo 0-63 e viene scritto utilizzando il registro colore che è codificato in `__BG_COL`:
+Scrive un carattere sullo schermo alla riga e colonna specificate e supporta in modo trasparente il modo Colore di Sfondo Esteso. Se questo modo è attivo il codice Schermo del carattere è automaticamente riportato all'intervallo 0-63 e viene scritto utilizzando il registro colore che è codificato in `__BG_COL`:
 
 ```
 __BG_COL = 0: Usa il colore memorizzato in BGCOL0
@@ -778,7 +778,7 @@ __BG_COL = 3: Usa il colore memorizzato in BGCOL3
 
 | Voce | Contenuto |
 |---|---|
-| Input | `.A` (1 byte, CPU): Codice schermo del carattere<br>`.X` (1 byte, CPU): Colonna della cella (0-39)<br>`.Y` (1 byte, CPU): Riga della cella (0-24)<br>`__BG_COL` (1 byte, ZP): Selettore del registro di sfondo (0-3), solo in ECM |
+| Input | `.A` (1 byte, CPU): Codice Schermo del carattere<br>`.X` (1 byte, CPU): Colonna della cella (0-39)<br>`.Y` (1 byte, CPU): Riga della cella (0-24)<br>`__BG_COL` (1 byte, ZP): Selettore del registro di sfondo (0-3), solo in ECM |
 | Output | `Cella` (1 byte, RAM): Cella dello schermo alla riga e colonna indicate |
 | Registri Modificati | `.P` (Negative, oVerflow, Zero, Carry), `INDEX2` |
 | Richiede | `__USE_COMPUTE_CELL_ADDRESS = 1` |
@@ -1508,7 +1508,7 @@ Sposta il generatore di caratteri dalla ROM alla RAM, nella posizione definita d
 <a id="utilita-compute_cell_address"></a>
 ### COMPUTE_CELL_ADDRESS
 
-Calcola in modo veloce, mediante tavole, la cella di memoria corrispondente ad una posizione dello schermo espressa in notazione cartesiana: origine in alto a sinistra, asse x verso destra, asse y verso il basso. Se `.A` = 0 restituisce in `INDEX2` l'offset rispetto all'origine (0,0), altrimenti la posizione assoluta per uno schermo che inizia alla pagina contenuta in `.A`: `.A` = (`HIBASE`) per lo schermo corrente, `.A` = >`COLRAM` per la memoria colore.
+Calcola in modo veloce, mediante tavole, la cella di memoria corrispondente ad una posizione dello schermo espressa in notazione cartesiana: origine in alto a sinistra, asse x verso destra, asse y verso il basso. Se `.A` = 0 restituisce in `INDEX2` l'offset rispetto all'origine (0; 0), altrimenti la posizione assoluta per uno schermo che inizia alla pagina contenuta in `.A`: `.A` = (`HIBASE`) per lo schermo corrente, `.A` = >`COLRAM` per la memoria colore.
 
 | Voce | Contenuto |
 |---|---|
@@ -1521,12 +1521,12 @@ Calcola in modo veloce, mediante tavole, la cella di memoria corrispondente ad u
 <a id="utilita-get_screen_cell"></a>
 ### GET_SCREEN_CELL
 
-Restituisce il codice schermo del carattere posizionato alla colonna `.X` ed alla riga `.Y` dello schermo corrente.
+Restituisce il codice Schermo del carattere posizionato alla colonna `.X` ed alla riga `.Y` dello schermo corrente.
 
 | Voce | Contenuto |
 |---|---|
 | Input | `.X` (1 byte, CPU): Colonna della cella (0-39)<br>`.Y` (1 byte, CPU): Riga della cella (0-24) |
-| Output | `.A` (1 byte, CPU): Codice schermo del carattere<br>`INDEX2` (2 byte, ZP): Indirizzo della cella |
+| Output | `.A` (1 byte, CPU): Codice Schermo del carattere<br>`INDEX2` (2 byte, ZP): Indirizzo della cella |
 | Registri Modificati | `.A`, `.Y`, `.P` (Negative, oVerflow, Zero, Carry), `INDEX2` |
 | Richiede | `__USE_COMPUTE_CELL_ADDRESS = 1` |
 
