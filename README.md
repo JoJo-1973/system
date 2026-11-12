@@ -114,7 +114,7 @@ La libreria non ha un modulo principale: ogni modulo si include da solo. `print_
 | `basic_tools.asm` | Nessuno | `<c64/errors.asm>`, `<c64/symbols.asm>` |
 | `branch.asm` | Nessuno | Nessuno |
 | `nmi_tools.asm` | Nessuno | `<c64/symbols.asm>` |
-| `print_tools.asm` | `<system/vic_ii_tools.asm>` | `<c64/kernal.asm>`, `<c64/symbols.asm>`, `<chip/vic_ii.asm>`, `<mem/mem16.asm>`, `<system/branch.asm>`, `<system/standard.asm>` |
+| `print_tools.asm` | `<system/vic_ii_tools.asm>` | `<c64/kernal.asm>`, `<c64/symbols.asm>`, `<chip/vic_ii.asm>`, `<io/chars.asm>`, `<mem/mem16.asm>`, `<system/branch.asm>`, `<system/standard.asm>` |
 | `raster_tools.asm` | Nessuno | `<c64/symbols.asm>`, `<chip/cia.asm>`, `<chip/vic_ii.asm>`, `<system/6510_tools.asm>`, `<system/standard.asm>` |
 | `standard.asm` | Nessuno | `<c64/symbols.asm>` |
 | `vic_ii_tools.asm` | Nessuno | `<c64/symbols.asm>`, `<chip/cia.asm>`, `<chip/vic_ii.asm>`, `<system/6510_tools.asm>`, `<system/branch.asm>` |
@@ -860,12 +860,16 @@ jsr PRINT_IMM
 <a id="utilita-m_put_ecm_char"></a>
 ### m_Put_ECM_Char
 
-Questa macro non è pensata per essere usata a sé stante, ma come mattone da costruzione per un proprio driver di stampa da utilizzare nel punto di configurazione `__PUT_CHAR` [Nota #02](#nota-print_tools-02): infatti la macro non termina con un RTS ma con un salto alla fine del suo codice in modo da poter essere concatenata con altre istruzioni [Nota #02](#nota-print_tools-02). Nello specifico questa macro implementa la logica per stampare a schermo un carattere PETSCII in modo ECM con il colore di sfondo desiderato. La macro si aspetta in `.A` il codice PETSCII del carattere da stampare: quattro codici PETSCII non utilizzati dal sistema operativo vengono reinterpretati come codici di controllo che, come gli altri, hanno effetto fino al loro cambiamento: essi sono `ECM_BG`[0-3] e selezionano il registro del VIC-II contenente il colore di sfondo da utilizzare [Nota #03](#nota-print_tools-03).
+Questa macro non è pensata per essere usata a sé stante, ma come mattone da costruzione per un proprio driver di stampa da utilizzare nel punto di configurazione `__PUT_CHAR` [Nota #02](#nota-print_tools-02): infatti la macro non termina con un RTS ma con un salto alla fine del suo codice in modo da poter essere concatenata con altre istruzioni [Nota #02](#nota-print_tools-02). Nello specifico questa macro implementa la logica per stampare a schermo un carattere PETSCII in modo ECM con il colore di sfondo desiderato. La macro si aspetta in `.A` il codice PETSCII del carattere da stampare e restituisce `.A`, `.X` e `.Y` invariati.
+
+I codici di controllo (0-31 e 128-159) sono trattati così: 0, 18 (`{RVS}` ON) e 146 (`{RVS}` OFF) sono ignorati, perché il modo reverse è deciso da `__BG_COL`; quattro codici PETSCII non utilizzati dal sistema operativo (1-4) sono reinterpretati come codici di controllo che, come gli altri, hanno effetto fino al loro cambiamento: essi sono `ECM_BG`[0-3] e selezionano il registro del VIC-II contenente il colore di sfondo da utilizzare, senza stampare nulla [Nota #03](#nota-print_tools-03); tutti gli altri sono inviati a `CHROUT` senza modifiche.
+
+Gli altri codici PETSCII sono stampabili. Il codice è normalizzato, cioè portato nell'intervallo 32-95 in cui il modo ECM ha i suoi glifi, sostituendo i 3 bit più significativi secondo la tabella `.NORM_TABLE` (con la macro `m_Apply_Table` di `<io/chars.asm>`). Non è una transcodifica nel senso di `<io/chars.asm>`, che conserva il glifo: in modo ECM il VIC-II ignora i due bit più significativi del codice Schermo, quindi la normalizzazione dà il codice il cui glifo è quello che l'hardware mostrerebbe comunque. Per esempio il pigreco (255) è stampato come la freccia in su: il suo codice 255 diventa 94, e questo caso, che la tabella non copre, è trattato a parte con la macro `m_Scan_Exceptions`. Poi il bit #0 di `__BG_COL` è copiato nel bit #7 del codice normalizzato e il bit #1 di `__BG_COL` decide il modo reverse (`RVS` = 0 normale, 1 inverso); il codice è infine inviato a `CHROUT`. `__BG_COL` non cambia.
 
 | Voce | Contenuto |
 |---|---|
 | Input | `.A` (1 byte, CPU): Codice PETSCII da stampare<br>`__BG_COL` (1 byte, ZP): Selettore del colore di sfondo (0-3) |
-| Output | `__BG_COL` (1 byte, ZP): Nuovo selettore (se il codice è `ECM_BG`[0-3])<br>`RVS` (1 byte, ZP): Modo reverse (1 se `__BG_COL` > 1) |
+| Output | `__BG_COL` (1 byte, ZP): Nuovo selettore (se il codice è `ECM_BG`[0-3])<br>`RVS` (1 byte, ZP): Modo reverse (bit #1 di `__BG_COL`), se il codice è stampabile |
 | Registri Modificati | `.P` (Negative, oVerflow, Zero, Carry), `__BG_COL`, `RVS` |
 
 [↑ Torna al contenuto](#contenuto)
