@@ -1407,7 +1407,7 @@ Imposta i colori di bordo, sfondo, carattere, multicolore/colore esteso e multic
 <a id="utilita-vic_bank"></a>
 ### VIC_BANK
 
-Imposta o recupera l'indirizzo iniziale del banco di memoria da 16 KB visibile dal chip VIC-II.
+Imposta o recupera l'indirizzo iniziale del banco di memoria da 16 kB visibile dal chip VIC-II.
 
 ```
 C = 0: .A contiene la pagina iniziale del banco da
