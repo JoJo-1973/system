@@ -271,7 +271,8 @@
   !zone VIC_Bank
 
     VIC_BANK:
-      bcs .Else_Read_Bank           ; Se C=1 vai alla subroutine di recupero indirizzo.
+      ; Se C=1 vai alla subroutine di recupero indirizzo.
+      bcs .Else_Read_Bank           ; IF: C = 0 (scrittura del valore)
 
       rol a                         ; L'accumulatore deve contenere un valore tra 0 e 3.
       rol a
@@ -292,8 +293,8 @@
       +m_Bra .Exit_VIC_BANK
 
     .Else_Read_Bank:
-      lda CI2PRA                    ; Inverti il valore dei bit di selezione del banco
-      eor #%00000011
+      lda CI2PRA                    ; ELSE
+      eor #%00000011                ; Inverti il valore dei bit di selezione del banco
 
       ror a                         ; poi spostali nei bit #6 e #7 e pulisci i bit non necessari.
       ror a
@@ -342,7 +343,8 @@
   !zone VIC_Screen
 
     VIC_SCREEN:
-      bcs .Else_Read_Screen         ; Se C=1 vai alla subroutine di recupero indirizzo.
+      ; Se C=1 vai alla subroutine di recupero indirizzo.
+      bcs .Else_Read_Screen         ; IF: C = 0 (scrittura del valore)
 
       and #%11111100                ; Allinea il valore fornito al kB.
       sta HIBASE                    ; Aggiusta HIBASE in modo che l'editor del BASIC conosca la
@@ -359,8 +361,9 @@
       +m_Bra .Exit_VIC_SCREEN
 
     .Else_Read_Screen:
-      jsr VIC_BANK                  ; C è già 1, quindi leggi la posizione iniziale del banco
-      sta ._MASK                    ; video e conservalo temporaneamente.
+      jsr VIC_BANK                  ; ELSE
+      sta ._MASK                    ; C è già 1, quindi leggi la posizione iniziale del banco
+                                    ; video e conservalo temporaneamente.
 
       lda VMCSB                     ; Estrai dal registro di controllo la posizione
       and #%11110000                ; della pagina iniziale di memoria schermo
@@ -411,7 +414,8 @@
   !zone VIC_Chargen
 
     VIC_CHARGEN:
-      bcs .Else_Read_Chargen        ; Se C=1 vai alla subroutine di recupero indirizzo.
+      ; Se C=1 vai alla subroutine di recupero indirizzo.
+      bcs .Else_Read_Chargen        ; IF: C = 0 (scrittura del valore)
 
       and #%00111000                ; Allinea il valore fornito ai 2 kB ed estrai l'offset.
 
@@ -427,8 +431,9 @@
       +m_Bra .Exit_VIC_CHARGEN
 
     .Else_Read_Chargen:
-      jsr VIC_BANK                  ; C è già 1, quindi leggi la posizione iniziale del banco
-      sta ._MASK                    ; video e conservalo temporaneamente.
+      jsr VIC_BANK                  ; ELSE
+      sta ._MASK                    ; C è già 1, quindi leggi la posizione iniziale del banco
+                                    ; video e conservalo temporaneamente.
 
       lda VMCSB                     ; Estrai dal registro di controllo la posizione
       and #%00001110                ; della pagina iniziale del generatore di caratteri
@@ -477,7 +482,8 @@
   !zone VIC_Bitmap
 
     VIC_BITMAP:
-      bcs .Else_Read_Bitmap         ; Se C=1 vai alla subroutine di recupero indirizzo.
+      ; Se C=1 vai alla subroutine di recupero indirizzo.
+      bcs .Else_Read_Bitmap         ; IF: C = 0 (scrittura del valore)
 
       and #%00100000                ; Allinea il valore fornito agli 8 kB ed estrai l'offset.
 
@@ -492,8 +498,9 @@
       +m_Bra .Exit_VIC_BITMAP
 
     .Else_Read_Bitmap:
-      jsr VIC_BANK                  ; C è già 1, quindi leggi la posizione iniziale del banco
-      sta ._MASK                    ; video e conservalo temporaneamente.
+      jsr VIC_BANK                  ; ELSE
+      sta ._MASK                    ; C è già 1, quindi leggi la posizione iniziale del banco
+                                    ; video e conservalo temporaneamente.
 
       lda VMCSB                     ; Estrai dal registro di controllo la posizione
       and #%00001000                ; della pagina iniziale dell'area grafica bitmap

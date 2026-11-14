@@ -64,14 +64,12 @@
 !if (__USE_LOMEM = 1) {
   !zone LOMEM
 
-    .NEW            = $A644     ; NEW oltre il controllo di sintassi (che richiede Z = 1)
-
     LOMEM:
       lda #$00                  ; Scrivi $00 nella locazione puntata.
       sta ($00,x)
 
       inc $00,x                 ; Incrementa il puntatore di 1
-      bne .No_Carry_Pointer
+      bne .No_Carry_Pointer     ; IF: il byte basso del puntatore è zero
 
       inc $01,x
 
@@ -81,8 +79,9 @@
       lda $01,x
       sta TXTTAB+1
 
-      jsr .NEW                  ; Esegui il comando NEW per aggiustare tutti gli altri
-                                ; puntatori che dipendono da TXTTAB.
+      jsr SCRTCH+2              ; Esegui il comando NEW per aggiustare tutti gli altri
+                                ; puntatori che dipendono da TXTTAB. Si salta il controllo di
+                                ; sintassi (che richiede Z = 1).
 
     .Exit_LOMEM:
       rts
@@ -114,16 +113,15 @@
 !if (__USE_HIMEM = 1) {
   !zone HIMEM
 
-    .CLEAR          = $A660     ; CLR oltre il controllo di sintassi (che richiede Z = 1)
-
     HIMEM:
       lda $00,x                 ; Prima il byte basso
       sta MEMSIZ
       lda $01,x                 ; poi quello alto.
       sta MEMSIZ+1
 
-      jsr .CLEAR                ; Esegui il comando CLR per aggiustare tutti gli altri
-                                ; puntatori che dipendono da MEMSIZ.
+      jsr CLEAR+2               ; Esegui il comando CLR per aggiustare tutti gli altri
+                                ; puntatori che dipendono da MEMSIZ. Si salta il controllo di
+                                ; sintassi (che richiede Z = 1).
 
     .Exit_HIMEM:
       rts

@@ -119,9 +119,11 @@
                                           ; 96 cicli in modo da essere sicuri di essere ben entrati
                                           ; nella linea successiva.
 
-      bit SCROLY                          ; Se il contatore è ancora maggiore di 256 vuol dire che siamo
-                                          ; ancora al fondo dello schermo, e l'identificazione non è
-      bmi .Else_If_Line_263               ; ancora completa.
+      ; Se il contatore è ancora maggiore di 256 vuol dire che siamo
+      ; ancora al fondo dello schermo, e l'identificazione non è
+      ; ancora completa.
+      bit SCROLY
+      bmi .Else_If_Line_263               ; IF: il contatore è tornato all'inizio dello schermo
 
     .Old_NTSC:
       ldy #%01000000                      ; Altrimenti siamo ritornati all'inizio dello schermo e siamo
@@ -131,16 +133,18 @@
     .Else_If_Line_263:
       +m_Delay_5n1 ".X", 19               ; Facciamo passare altri 96 cicli e ripetiamo il test.
 
-      bit SCROLY                          ; Se il contatore è ancora maggiore di 256 allora non ci sono
-                                          ; dubbi: il chip VIC-II è in versione "PAL",
-      bmi .Else_PAL
+      ; Se il contatore è ancora maggiore di 256 allora non ci sono
+      ; dubbi: il chip VIC-II è in versione "PAL", altrimenti non
+      ; può che essere in versione "New NTSC".
+      bit SCROLY
+      bmi .Else_PAL                       ; ELSE IF: il contatore è tornato all'inizio dello schermo
 
     .New_NTSC:
-      ldy #%11000000                      ; altrimenti non può che essere in versione "New NTSC".
+      ldy #%11000000
       bne .Exit_M_INIT_RASTER_SYSTEM
 
     .Else_PAL:
-      ldy #%00000000
+      ldy #%00000000                      ; ELSE
 
     .Exit_M_INIT_RASTER_SYSTEM:
       sty __VIC_MODEL                     ; Memorizza il risultato, riabilita le interruzioni ed esci.
