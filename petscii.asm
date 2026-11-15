@@ -54,10 +54,76 @@ PETSCII_GREEN                   = $1E ; Colore di primo piano: verde
 PETSCII_BLUE                    = $1F ; Colore di primo piano: blu
 
 ; ------------------------------------------------------------------------------
+; Blocco 1 (32-63)
+; ------------------------------------------------------------------------------
+
+PETSCII_SPACE                   = $20
+PETSCII_EXCLAMATION_MARK        = $21
+PETSCII_QUOTE                   = $22
+PETSCII_HASH                    = $23
+PETSCII_DOLLAR_SIGN             = $24
+PETSCII_PERCENT_SIGN            = $25
+PETSCII_AMPERSAND               = $26
+PETSCII_APOSTROPHE              = $27
+PETSCII_LEFT_PARENTHESIS        = $28
+PETSCII_RIGHT_PARENTHESIS       = $29
+PETSCII_ASTERISK                = $2A
+PETSCII_PLUS                    = $2B
+PETSCII_COMMA                   = $2C
+PETSCII_MINUS                   = $2D
+PETSCII_FULL_STOP               = $2E
+PETSCII_SLASH                   = $2F
+PETSCII_DIGIT_0                 = $30
+PETSCII_DIGIT_1                 = $31
+PETSCII_DIGIT_2                 = $32
+PETSCII_DIGIT_3                 = $33
+PETSCII_DIGIT_4                 = $34
+PETSCII_DIGIT_5                 = $35
+PETSCII_DIGIT_6                 = $36
+PETSCII_DIGIT_7                 = $37
+PETSCII_DIGIT_8                 = $38
+PETSCII_DIGIT_9                 = $39
+PETSCII_COLON                   = $3A
+PETSCII_SEMICOLON               = $3B
+PETSCII_LESS_THAN_SIGN          = $3C
+PETSCII_EQUALS                  = $3D
+PETSCII_GREATER_THAN_SIGN       = $3E
+PETSCII_QUESTION_MARK           = $3F
+
+; ------------------------------------------------------------------------------
 ; Blocco 2 (64-95)
 ; ------------------------------------------------------------------------------
 
+PETSCII_AT_SIGN                 = $40
+PETSCII_LETTER_A                = $41
+PETSCII_LETTER_B                = $42
+PETSCII_LETTER_C                = $43
+PETSCII_LETTER_D                = $44
+PETSCII_LETTER_E                = $45
+PETSCII_LETTER_F                = $46
+PETSCII_LETTER_G                = $47
+PETSCII_LETTER_H                = $48
+PETSCII_LETTER_I                = $49
+PETSCII_LETTER_J                = $4A
+PETSCII_LETTER_K                = $4B
+PETSCII_LETTER_L                = $4C
+PETSCII_LETTER_M                = $4D
+PETSCII_LETTER_N                = $4E
+PETSCII_LETTER_O                = $4F
+PETSCII_LETTER_P                = $50
+PETSCII_LETTER_Q                = $51
+PETSCII_LETTER_R                = $52
+PETSCII_LETTER_S                = $53
+PETSCII_LETTER_T                = $54
+PETSCII_LETTER_U                = $55
+PETSCII_LETTER_V                = $56
+PETSCII_LETTER_W                = $57
+PETSCII_LETTER_X                = $58
+PETSCII_LETTER_Y                = $59
+PETSCII_LETTER_Z                = $5A
+PETSCII_LEFT_BRACKET            = $5B
 PETSCII_POUND                   = $5C ; Tasto sterlina; U+00A3 POUND SIGN
+PETSCII_RIGHT_BRACKET           = $5D
 PETSCII_UP_ARROW                = $5E ; Tasto freccia in su; U+2191 UPWARDS ARROW
 PETSCII_LEFT_ARROW              = $5F ; Tasto freccia a sinistra; U+2190 LEFTWARDS ARROW
 
