@@ -59,8 +59,8 @@ PETSCII_BLUE                    = $1F ; Colore di primo piano: blu
 
 PETSCII_SPACE                   = $20
 PETSCII_EXCLAMATION_MARK        = $21
-PETSCII_QUOTE                   = $22
-PETSCII_HASH                    = $23
+PETSCII_QUOTATION_MARK          = $22
+PETSCII_NUMBER_SIGN             = $23
 PETSCII_DOLLAR_SIGN             = $24
 PETSCII_PERCENT_SIGN            = $25
 PETSCII_AMPERSAND               = $26

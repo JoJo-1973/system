@@ -49,8 +49,8 @@ SCREEN_LEFT_ARROW                 = $1F ; Tasto freccia a sinistra; U+2190 LEFTW
 
 SCREEN_SPACE                      = $20
 SCREEN_EXCLAMATION_MARK           = $21
-SCREEN_QUOTE                      = $22
-SCREEN_HASH                       = $23
+SCREEN_QUOTATION_MARK             = $22
+SCREEN_NUMBER_SIGN                = $23
 SCREEN_DOLLAR_SIGN                = $24
 SCREEN_PERCENT_SIGN               = $25
 SCREEN_AMPERSAND                  = $26
@@ -197,8 +197,8 @@ SCREEN_LEFT_ARROW_REVERSE         = $9F ; Inverso di SCREEN_LEFT_ARROW
 
 SCREEN_SPACE_REVERSE              = $A0 ; Inverso di SCREEN_SPACE
 SCREEN_EXCLAMATION_MARK_REVERSE   = $A1 ; Inverso di SCREEN_EXCLAMATION_MARK
-SCREEN_QUOTE_REVERSE              = $A2 ; Inverso di SCREEN_QUOTE
-SCREEN_HASH_REVERSE               = $A3 ; Inverso di SCREEN_HASH
+SCREEN_QUOTATION_MARK_REVERSE     = $A2 ; Inverso di SCREEN_QUOTATION_MARK
+SCREEN_NUMBER_SIGN_REVERSE        = $A3 ; Inverso di SCREEN_NUMBER_SIGN
 SCREEN_DOLLAR_SIGN_REVERSE        = $A4 ; Inverso di SCREEN_DOLLAR_SIGN
 SCREEN_PERCENT_SIGN_REVERSE       = $A5 ; Inverso di SCREEN_PERCENT_SIGN
 SCREEN_AMPERSAND_REVERSE          = $A6 ; Inverso di SCREEN_AMPERSAND
