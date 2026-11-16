@@ -48,8 +48,8 @@ ASCII_CTRL_UNDERSCORE     = $1F ; Separatore di unità (US)
 
 ASCII_SPACE               = $20
 ASCII_EXCLAMATION_MARK    = $21
-ASCII_QUOTE               = $22
-ASCII_HASH                = $23
+ASCII_QUOTATION_MARK      = $22
+ASCII_NUMBER_SIGN         = $23
 ASCII_DOLLAR_SIGN         = $24
 ASCII_PERCENT_SIGN        = $25
 ASCII_AMPERSAND           = $26
