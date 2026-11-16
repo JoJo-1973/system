@@ -1,6 +1,6 @@
 # system
 
-Utilità e simboli di sistema per il Commodore 64: gestione dei banchi di memoria del 6510 e del BASIC, salti condizionati, macro di uso generale, codici d'errore del BASIC, codici della tastiera e codici di carattere (PETSCII, Codici Schermo, ASCII a 7 bit). La libreria `system` fa parte della Libreria di Sistema (progetto `system.c64`) ed è scritta in assembly 6510 per C64Studio (sintassi ACME).
+Utilità e simboli di sistema per il Commodore 64: gestione del BASIC, salti condizionati, macro di uso generale, codici d'errore del BASIC, codici della tastiera e codici di carattere (PETSCII, Codici Schermo, ASCII a 7 bit). La libreria `system` fa parte della Libreria di Sistema (progetto `system.c64`) ed è scritta in assembly 6510 per C64Studio (sintassi ACME).
 
 Questo documento deriva dai sorgenti. Per ogni dettaglio fanno fede i contratti d'interfaccia nelle intestazioni delle macro e delle subroutine.
 
@@ -9,12 +9,6 @@ Questo documento deriva dai sorgenti. Per ogni dettaglio fanno fede i contratti 
 
 | Modulo | Utilità | Descrizione |
 |---|---|---|
-| [`6510_tools.asm`](#modulo-6510_tools) | [`m_Disable_BASIC`](#utilita-m_disable_basic) | Disabilita la ROM del BASIC |
-| | [`m_Enable_BASIC`](#utilita-m_enable_basic) | Riabilita la ROM del BASIC |
-| | [`m_Disable_Kernal`](#utilita-m_disable_kernal) | Disabilita la ROM del Kernal |
-| | [`m_Enable_Kernal`](#utilita-m_enable_kernal) | Riabilita la ROM del Kernal |
-| | [`m_Disable_IO`](#utilita-m_disable_io) | Disabilita l'I/O (rende visibile CHARGEN) |
-| | [`m_Enable_IO`](#utilita-m_enable_io) | Riabilita l'I/O |
 | [`ascii_7bit.asm`](#modulo-ascii_7bit) | Blocco 0 (0-31) | Codici di controllo ASCII |
 | | Blocco 1 (32-63) | Spazio, punteggiatura e cifre |
 | | Blocco 2 (64-95) | Chiocciola, lettere maiuscole e parentesi quadre |
@@ -98,7 +92,6 @@ La libreria non ha un modulo principale: ogni modulo si include da sé e nessun 
 
 | Modulo | Include da sé | File da includere prima |
 |---|---|---|
-| `6510_tools.asm` | Nessuno | `<c64/symbols.asm>`, `<chip/cia.asm>` |
 | `ascii_7bit.asm` | Nessuno | Nessuno |
 | `basic_tools.asm` | Nessuno | `<c64/symbols.asm>`, `<system/errors.asm>` |
 | `branch.asm` | Nessuno | Nessuno |
@@ -124,89 +117,6 @@ Una parte dei file di simboli è condizionata.
 | `__C128_C64_MODE` | `keycodes.asm` | `0` | 1 = aggiunge i codici extra del C128 (da `$40` a `$57`) e sposta `KEYCODE_NO_KEY` a `$58` |
 
 Il parametro si definisce nella copia di `config.asm` della Soluzione e deve essere definito prima dell'inclusione di `keycodes.asm`.
-
-<a id="modulo-6510_tools"></a>
-## 6510_tools.asm
-
-Macro per la configurazione dei banchi di memoria del 6510.
-
-<a id="utilita-m_disable_basic"></a>
-### m_Disable_BASIC
-
-Disabilita la ROM del BASIC, rendendo visibile il banco di memoria `LORAM` (`$A000`-`$BFFF`).
-
-| Voce | Contenuto |
-|---|---|
-| Input | Nessuno |
-| Output | Nessuno |
-| Registri Modificati | `.A`, `.P` (Negative, Zero), `R6510` |
-
-[↑ Torna al contenuto](#contenuto)
-
-<a id="utilita-m_enable_basic"></a>
-### m_Enable_BASIC
-
-Riabilita la ROM del BASIC, rendendo invisibile il banco di memoria `LORAM` (`$A000`-`$BFFF`).
-
-| Voce | Contenuto |
-|---|---|
-| Input | Nessuno |
-| Output | Nessuno |
-| Registri Modificati | `.A`, `.P` (Negative, Zero), `R6510` |
-
-[↑ Torna al contenuto](#contenuto)
-
-<a id="utilita-m_disable_kernal"></a>
-### m_Disable_Kernal
-
-Disabilita la ROM del Kernal, rendendo visibile il banco di memoria `HIRAM` (`$E000`-`$FFFF`). ATTENZIONE: gli interrupt saranno disabilitati.
-
-| Voce | Contenuto |
-|---|---|
-| Input | Nessuno |
-| Output | Interrupt (1 bit, .P): sempre 1 |
-| Registri Modificati | `.A`, `.P` (Negative, Interrupt, Zero), `R6510` |
-
-[↑ Torna al contenuto](#contenuto)
-
-<a id="utilita-m_enable_kernal"></a>
-### m_Enable_Kernal
-
-Riabilita la ROM del Kernal, rendendo invisibile il banco di memoria `HIRAM` (`$E000`-`$FFFF`). ATTENZIONE: gli interrupt saranno riabilitati.
-
-| Voce | Contenuto |
-|---|---|
-| Input | Nessuno |
-| Output | Interrupt (1 bit, .P): sempre 0 |
-| Registri Modificati | `.A`, `.P` (Negative, Interrupt, Zero), `R6510` |
-
-[↑ Torna al contenuto](#contenuto)
-
-<a id="utilita-m_disable_io"></a>
-### m_Disable_IO
-
-Disabilita le interruzioni del timer di sistema e gli indirizzi di I/O, rendendo visibile il banco di memoria `CHARGEN` (`$D000`-`$DFFF`).
-
-| Voce | Contenuto |
-|---|---|
-| Input | Nessuno |
-| Output | Nessuno |
-| Registri Modificati | `.A`, `.P` (Negative, Zero), `R6510`, `CIAICR` |
-
-[↑ Torna al contenuto](#contenuto)
-
-<a id="utilita-m_enable_io"></a>
-### m_Enable_IO
-
-Riabilita gli indirizzi di I/O, rendendo invisibile il banco di memoria `CHARGEN` (`$D000`-`$DFFF`), e le interruzioni del timer di sistema.
-
-| Voce | Contenuto |
-|---|---|
-| Input | Nessuno |
-| Output | Nessuno |
-| Registri Modificati | `.A`, `.P` (Negative, Zero), `R6510`, `CIAICR` |
-
-[↑ Torna al contenuto](#contenuto)
 
 <a id="modulo-ascii_7bit"></a>
 ## ascii_7bit.asm
