@@ -1,6 +1,6 @@
 # system
 
-Utilità e simboli di sistema per il Commodore 64: gestione del BASIC, salti condizionati, macro di uso generale, codici d'errore del BASIC, codici della tastiera e codici di carattere (PETSCII, Codici Schermo, ASCII a 7 bit). La libreria `system` fa parte della Libreria di Sistema (progetto `system.c64`) ed è scritta in assembly 6510 per C64Studio (sintassi ACME).
+Utilità e simboli di sistema per il Commodore 64: gestione del BASIC, salti condizionati, macro di uso generale, codici d'errore del BASIC, codici della tastiera e codici di carattere (PETSCII, Codici Schermo, ASCII a 7 bit). La libreria `system` fa parte della Libreria di Sistema (progetto `system.c64`) ed è scritta in assembly 6510 per C64Studio (sintassi ACME). I moduli `ascii_7bit.asm`, `errors.asm`, `keycodes.asm`, `petscii.asm` e `screencodes.asm` contengono solo simboli: fanno fede i commenti dei sorgenti.
 
 Questo documento deriva dai sorgenti. Per ogni dettaglio fanno fede i contratti d'interfaccia nelle intestazioni delle macro e delle subroutine.
 
