@@ -1,6 +1,6 @@
 ; ==============================================================================
 ; FILE:           screencodes.asm
-; PROGETTO:       Libreria di Sistema (c64.c64)
+; PROGETTO:       Libreria di Sistema (system.c64)
 ; TARGET:         ACME Assembler / MOS 6510 (Commodore 64)
 ; DESCRIZIONE:    Codici Schermo, indicati con simboli SCREEN_<descrizione>. I
 ;                 codici in modo inverso (128-255) hanno il suffisso _REVERSE.

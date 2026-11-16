@@ -1,6 +1,6 @@
 ; ==============================================================================
 ; FILE:           keycodes.asm
-; PROGETTO:       Libreria di Sistema (c64.c64)
+; PROGETTO:       Libreria di Sistema (system.c64)
 ; TARGET:         ACME Assembler / MOS 6510 (Commodore 64)
 ; DESCRIZIONE:    Codici della matrice della tastiera. Con __C128_C64_MODE = 1
 ;                 aggiunge il supporto per i registri extra usati nella versione

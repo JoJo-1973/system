@@ -27,8 +27,8 @@
 ;   - Azzerato
 ;
 ; Registri Modificati:  .X, .P (Negative, Zero), .S
-; Dipendenze Esterne:   <c64/errors.asm>
-;                       <c64/symbols.asm>
+; Dipendenze Esterne:   <c64/symbols.asm>
+;                       <system/errors.asm>
 ; ==============================================================================
 !macro m_Exit_To_BASIC {
     ldx #ERR_READY              ; Carica il codice d'errore corrispondente a "READY."

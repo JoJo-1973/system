@@ -1,6 +1,6 @@
 ; ==============================================================================
 ; FILE:           petscii.asm
-; PROGETTO:       Libreria di Sistema (c64.c64)
+; PROGETTO:       Libreria di Sistema (system.c64)
 ; TARGET:         ACME Assembler / MOS 6510 (Commodore 64)
 ; DESCRIZIONE:    Codici PETSCII, indicati con simboli PETSCII_<descrizione>, e
 ;                 codici per la selezione del colore di sfondo nella stampa in
