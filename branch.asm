@@ -94,10 +94,10 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_Bhi .addr_ {
-    beq @No_Jump
+    beq .No_Jump                ; IF: i due valori sono diversi
     bcs .addr_
 
-  @No_Jump:
+  .No_Jump:
 }
 
 ; ==============================================================================
@@ -182,15 +182,15 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_Bgt .addr_ {
-    beq @No_Jump
-    bmi @Jump_If_V_Set
+    beq .No_Jump                ; IF: i due valori sono diversi
+    bmi .Jump_If_V_Set
     bvc .addr_
-    bvs @No_Jump
+    bvs .No_Jump                ; ALWAYS: V=1 dopo bvc non preso.
 
-  @Jump_If_V_Set:
+  .Jump_If_V_Set:
     bvs .addr_
 
-  @No_Jump:
+  .No_Jump:
 }
 
 ; ==============================================================================
@@ -211,14 +211,14 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_Bge .addr_ {
-    bmi @Jump_If_V_Set
+    bmi .Jump_If_V_Set
     bvc .addr_
-    bvs @No_Jump
+    bvs .No_Jump                ; ALWAYS: V=1 dopo bvc non preso.
 
-  @Jump_If_V_Set:
+  .Jump_If_V_Set:
     bvs .addr_
 
-  @No_Jump:
+  .No_Jump:
 }
 
 ; ==============================================================================
@@ -239,14 +239,14 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_Blt .addr_ {
-    bpl @Jump_If_V_Set
+    bpl .Jump_If_V_Set
     bvc .addr_
-    bvs @No_Jump
+    bvs .No_Jump                ; ALWAYS: V=1 dopo bvc non preso.
 
-  @Jump_If_V_Set:
+  .Jump_If_V_Set:
     bvs .addr_
 
-  @No_Jump:
+  .No_Jump:
 }
 
 ; ==============================================================================
@@ -268,14 +268,14 @@
 ; ==============================================================================
 !macro m_Ble .addr_ {
     beq .addr_
-    bpl @Jump_If_V_Set
+    bpl .Jump_If_V_Set
     bvc .addr_
-    bvs @No_Jump
+    bvs .No_Jump                ; ALWAYS: V=1 dopo bvc non preso.
 
-  @Jump_If_V_Set:
+  .Jump_If_V_Set:
     bvs .addr_
 
-  @No_Jump:
+  .No_Jump:
 }
 
 ; ==============================================================================
@@ -337,10 +337,10 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_L_Bhi .addr_ {
-    +m_Bls @Skip_Jump
+    +m_Bls .Skip_Jump
     jmp .addr_
 
-  @Skip_Jump:
+  .Skip_Jump:
 }
 
 ; ==============================================================================
@@ -361,10 +361,10 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_L_Bhs .addr_ {
-    +m_Blo @Skip_Jump
+    +m_Blo .Skip_Jump
     jmp .addr_
 
-  @Skip_Jump:
+  .Skip_Jump:
 }
 
 ; ==============================================================================
@@ -385,10 +385,10 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_L_Blo .addr_ {
-    +m_Bhs @Skip_Jump
+    +m_Bhs .Skip_Jump
     jmp .addr_
 
-  @Skip_Jump:
+  .Skip_Jump:
 }
 
 ; ==============================================================================
@@ -409,10 +409,10 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_L_Bls .addr_ {
-    +m_Bhi @Skip_Jump
+    +m_Bhi .Skip_Jump
     jmp .addr_
 
-  @Skip_Jump:
+  .Skip_Jump:
 }
 
 ; ==============================================================================
@@ -433,10 +433,10 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_L_Bgt .addr_ {
-    +m_Ble @Skip_Jump
+    +m_Ble .Skip_Jump
     jmp .addr_
 
-  @Skip_Jump:
+  .Skip_Jump:
 }
 
 ; ==============================================================================
@@ -457,10 +457,10 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_L_Bge .addr_ {
-    +m_Blt @Skip_Jump
+    +m_Blt .Skip_Jump
     jmp .addr_
 
-  @Skip_Jump:
+  .Skip_Jump:
 }
 
 ; ==============================================================================
@@ -481,10 +481,10 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_L_Blt .addr_ {
-    +m_Bge @Skip_Jump
+    +m_Bge .Skip_Jump
     jmp .addr_
 
-  @Skip_Jump:
+  .Skip_Jump:
 }
 
 ; ==============================================================================
@@ -505,10 +505,10 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_L_Ble .addr_ {
-    +m_Bgt @Skip_Jump
+    +m_Bgt .Skip_Jump
     jmp .addr_
 
-  @Skip_Jump:
+  .Skip_Jump:
 }
 
 ; ==============================================================================
@@ -529,10 +529,10 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_L_Bcc .addr_ {
-    bcs @No_Jump
+    bcs .No_Jump                ; IF: C=0
     jmp .addr_
 
-  @No_Jump:
+  .No_Jump:
 }
 
 ; ==============================================================================
@@ -553,10 +553,10 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_L_Bcs .addr_ {
-    bcc @No_Jump
+    bcc .No_Jump                ; IF: C=1
     jmp .addr_
 
-  @No_Jump:
+  .No_Jump:
 }
 
 ; ==============================================================================
@@ -577,10 +577,10 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_L_Beq .addr_ {
-    bne @No_Jump
+    bne .No_Jump                ; IF: Z=1
     jmp .addr_
 
-  @No_Jump:
+  .No_Jump:
 }
 
 ; ==============================================================================
@@ -601,10 +601,10 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_L_Bne .addr_ {
-    beq @No_Jump
+    beq .No_Jump                ; IF: Z=0
     jmp .addr_
 
-  @No_Jump:
+  .No_Jump:
 }
 
 ; ==============================================================================
@@ -625,10 +625,10 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_L_Bpl .addr_ {
-    bmi @No_Jump
+    bmi .No_Jump                ; IF: N=0
     jmp .addr_
 
-  @No_Jump:
+  .No_Jump:
 }
 
 ; ==============================================================================
@@ -649,10 +649,10 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_L_Bmi .addr_ {
-    bpl @No_Jump
+    bpl .No_Jump                ; IF: N=1
     jmp .addr_
 
-  @No_Jump:
+  .No_Jump:
 }
 
 ; ==============================================================================
@@ -673,10 +673,10 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_L_Bvc .addr_ {
-    bvs @No_Jump
+    bvs .No_Jump                ; IF: V=0
     jmp .addr_
 
-  @No_Jump:
+  .No_Jump:
 }
 
 ; ==============================================================================
@@ -697,8 +697,8 @@
 ; Dipendenze Esterne:   Nessuna
 ; ==============================================================================
 !macro m_L_Bvs .addr_ {
-    bvc @No_Jump
+    bvc .No_Jump                ; IF: V=1
     jmp .addr_
 
-  @No_Jump:
+  .No_Jump:
 }
